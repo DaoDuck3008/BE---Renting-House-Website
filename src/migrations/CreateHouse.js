@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("House", {
-      id: {
+      house_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -22,7 +22,7 @@ module.exports = {
         type: Sequelize.FLOAT,
       },
       image: {
-        type: Sequelize.JSON,
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,

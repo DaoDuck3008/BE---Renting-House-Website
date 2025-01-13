@@ -13,16 +13,23 @@ module.exports = (sequelize, DataTypes) => {
   }
   House.init(
     {
+      house_id: { 
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
       house_name: DataTypes.STRING,
       address: DataTypes.STRING,
       number_of_room: DataTypes.INTEGER,
       average_rate: DataTypes.FLOAT,
-      image: DataTypes.JSON,
-      createAt: DataTypes.DATE,
+      image: DataTypes.TEXT,
+      createdAt: DataTypes.DATE,
     },
     {
       sequelize,
       modelName: "House",
+      tableName: "House",
     }
   );
   return House;
