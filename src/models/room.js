@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // Mỗi room thuộc về một house
+      Room.belongsTo(models.House, { foreignKey: 'house_id' });
+      // Mỗi room có thể có nhiều comments
+      Room.hasMany(models.Comment, { foreignKey: 'room_id' });
     }
   }
   Room.init(

@@ -9,6 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // Mỗi comment thuộc về một room
+      Comment.belongsTo(models.Room, { foreignKey: 'room_id' });
     }
   }
   Comment.init(

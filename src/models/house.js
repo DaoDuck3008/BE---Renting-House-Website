@@ -9,11 +9,17 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // Mỗi house có thể có nhiều rooms
+      House.hasMany(models.Room, { foreignKey: 'house_id' });
+      // Mỗi house có thể có nhiều comments thông qua rooms
+      House.hasMany(models.Comment, { through: models.Room, foreignKey: 'house_id' });
+      // Mối quan hệ nhiều - nhiều với Host thông qua HostHouse
+      House.belongsToMany(models.Host, { through: models.HostHouse, foreignKey: 'house_id' });
     }
   }
   House.init(
     {
-      house_id: { 
+      house_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         autoIncrement: true,

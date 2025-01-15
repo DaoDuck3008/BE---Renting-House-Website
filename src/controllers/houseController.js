@@ -1,6 +1,5 @@
-const db = require('../models'); // Import tất cả các models qua index.js
-const { House } = db; // Lấy model House từ db
-const { Comment } = require('../models');
+const db = require('../models');
+const { House, Room, Comment } = db;
 
 const houseController = {
   // Tạo bài đăng nhà mới
@@ -8,7 +7,6 @@ const houseController = {
     try {
       const { house_name, address, number_of_room, owner_id, image } = req.body;
 
-      // Sử dụng ORM để tạo bài đăng
       const newHouse = await House.create({
         house_name,
         address,
@@ -18,8 +16,7 @@ const houseController = {
         created_date: new Date(),
       });
 
-      // Sau khi tạo thành công, có thể render lại trang danh sách nhà hoặc thông báo thành công
-      return res.redirect('/houses'); // Redirect đến trang danh sách nhà hoặc render lại home.ejs
+      return res.redirect('/houses');
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
@@ -28,12 +25,9 @@ const houseController = {
   // Lấy danh sách tất cả bài đăng nhà
   getAllHouses: async (req, res) => {
     try {
-      const houses = await House.findAll(); // Lấy tất cả các bản ghi trong bảng Houses
-      console.log(houses);
-      // Render trang hiển thị danh sách các nhà
+      const houses = await House.findAll();
       return res.render('home', { houses });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ success: false, message: error.message });
     }
   },
@@ -42,17 +36,15 @@ const houseController = {
   getHouseById: async (req, res) => {
     try {
       const { id } = req.params;
-
-      // Tìm ngôi nhà theo ID và bao gồm các phòng và bình luận
       const house = await House.findByPk(id, {
         include: [
           {
             model: Room,
-            as: 'rooms', // Tên alias của quan hệ, cần phải khai báo trong model
+            as: 'rooms',
             include: [
               {
                 model: Comment,
-                as: 'comments', // Tên alias của quan hệ bình luận, cũng cần khai báo trong model
+                as: 'comments',
               }
             ]
           }
@@ -63,8 +55,7 @@ const houseController = {
         return res.status(404).json({ success: false, message: 'House not found' });
       }
 
-      // Render trang chi tiết ngôi nhà
-      return res.render('house', { house });
+      return res.render('house', { house }); //render view 'house'
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
@@ -76,14 +67,12 @@ const houseController = {
       const { id } = req.params;
       const { house_name, address, number_of_room, image } = req.body;
 
-      // Tìm bài đăng theo ID
       const house = await House.findByPk(id);
 
       if (!house) {
         return res.status(404).json({ success: false, message: 'House not found' });
       }
 
-      // Cập nhật bài đăng
       await house.update({
         house_name,
         address,
@@ -91,7 +80,7 @@ const houseController = {
         image,
       });
 
-      return res.redirect('/houses'); // Sau khi cập nhật, redirect đến trang danh sách nhà
+      return res.redirect('/houses');
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
@@ -101,31 +90,27 @@ const houseController = {
   deleteHouse: async (req, res) => {
     try {
       const { id } = req.params;
-
-      // Tìm bài đăng theo ID
       const house = await House.findByPk(id);
 
       if (!house) {
         return res.status(404).json({ success: false, message: 'House not found' });
       }
 
-      // Xóa bài đăng
       await house.destroy();
-
-      return res.redirect('/houses'); // Redirect về trang danh sách nhà sau khi xóa
+      return res.redirect('/houses');
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
   },
 
+  // Thêm bình luận cho bài đăng nhà
   addComment: async (req, res) => {
     try {
       const { house_id } = req.params;
       const { rating, description, rater_id } = req.body;
 
-      // Tạo bình luận mới
       await Comment.create({
-        room_id: house_id,
+        house_id, // gắn với house_id
         rater_id,
         rating,
         description,
@@ -138,7 +123,5 @@ const houseController = {
     }
   },
 };
-
-
 
 module.exports = houseController;
