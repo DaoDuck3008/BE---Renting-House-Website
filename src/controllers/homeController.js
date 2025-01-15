@@ -4,6 +4,7 @@ const getHomePage = async (req, res) => {
     const houses = await House.findAll(); // Lấy tất cả các nhà từ cơ sở dữ liệu
     res.render('home', { houses: houses });
   } catch (error) {
+    console.error('Error fetching houses:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -45,4 +46,5 @@ module.exports = {
   getHousePage,
   getLoginPage,
   getRegisterPage,
+  
 };

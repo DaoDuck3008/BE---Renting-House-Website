@@ -95,7 +95,7 @@
           </form>
 
           <h2>Edit House</h2>
-          <% if (house) { %>
+          <% if (houses) { %>
             <form action="/houses/<%= house.id %>?_method=PUT" method="POST">
               <label for="house_name">House Name:</label>
               <input type="text" id="house_name" name="house_name" value="<%= house.house_name %>" required><br>
