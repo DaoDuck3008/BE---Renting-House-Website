@@ -2,10 +2,10 @@ const db = require('../models');
 const { House, Room, Comment } = db;
 
 const houseController = {
-  // Tạo bài đăng nhà mới
   createHouse: async (req, res) => {
     try {
-      const { house_name, address, number_of_room, owner_id, image } = req.body;
+      const { house_name, address, number_of_room, owner_id } = req.body;
+      const image = req.file ? `/uploads/${req.file.filename}` : null;
 
       const newHouse = await House.create({
         house_name,
@@ -16,9 +16,10 @@ const houseController = {
         created_date: new Date(),
       });
 
-      return res.redirect('/houses');
+      return res.redirect('/houses'); // Chuyển về trang danh sách houses sau khi tạo
     } catch (error) {
-      return res.status(500).json({ success: false, message: error.message });
+      console.error('Error creating house:', error);
+      res.status(500).json({ success: false, message: error.message });
     }
   },
 
@@ -45,19 +46,20 @@ const houseController = {
               {
                 model: Comment,
                 as: 'comments',
-              }
-            ]
-          }
-        ]
+              },
+            ],
+          },
+        ],
       });
 
       if (!house) {
-        return res.status(404).json({ success: false, message: 'House not found' });
+        return res.status(404).render('404', { message: 'House not found' });
       }
 
-      return res.render('house', { house }); //render view 'house'
+      res.render('house', { house });
     } catch (error) {
-      return res.status(500).json({ success: false, message: error.message });
+      console.error('Error fetching house by ID:', error);
+      res.status(500).json({ success: false, message: error.message });
     }
   },
 

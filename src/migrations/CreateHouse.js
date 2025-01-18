@@ -24,6 +24,10 @@ module.exports = {
       image: {
         type: Sequelize.TEXT,
       },
+      owner_id: {  // Thêm trường owner_id
+        type: Sequelize.INTEGER,
+        allowNull: false,  
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

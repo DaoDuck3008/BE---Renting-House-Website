@@ -3,6 +3,7 @@ import configViewEngine from "./config/viewEngine";
 import bodyParser from "body-parser";
 import initWebRoutes from "./routes/web";
 import connection from "./config/connectDB";
+import path from 'path'; 
 require("dotenv").config();
 
 const app = express();
@@ -16,6 +17,9 @@ app.use(bodyParser.json());
 
 //check connect DB
 connection();
+
+// Cấu hình express để sử dụng thư mục uploads làm static folder
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //initWebRoutes
 initWebRoutes(app);

@@ -2,24 +2,36 @@ import express from "express";
 import homeController from "../controllers/homeController";
 import houseController from "../controllers/houseController";
 import methodOverride from "method-override";
-
+const upload = require('../middlewares/upload');
 const router = express.Router();
-router.use(methodOverride('_method'));
+router.use(methodOverride('_method')); // Hỗ trợ PUT/DELETE từ form HTML
 
 const initWebRoutes = (app) => {
-  router.get("/", homeController.getHomePage); // Hiển thị trang chính của website (Home Page)
-  router.get("/user", homeController.getUserPage); 
-  router.get("/house/:id", homeController.getHousePage);//Hiển thị thông tin chi tiết của một ngôi nhà cụ thể dựa trên id
-  router.get("/login", homeController.getLoginPage);
-  router.get("/register", homeController.getRegisterPage);
+  // Trang chính và các trang cơ bản
+  router.get("/", homeController.getHomePage); // Hiển thị trang chính
+  router.get("/user", homeController.getUserPage); // Hiển thị thông tin người dùng
+  router.get("/login", homeController.getLoginPage); // Hiển thị trang đăng nhập
+  router.get("/register", homeController.getRegisterPage); // Hiển thị trang đăng ký
 
-  router.post('/houses', houseController.createHouse); //Xử lý việc thêm một ngôi nhà mới vào cơ sở dữ liệu
-  router.get('/houses', houseController.getAllHouses); //Hiển thị danh sách tất cả ngôi nhà
-  router.get('/houses/:id', houseController.getHouseById); //Lấy dữ liệu chi tiết của một ngôi nhà thông qua API hoặc giao diện
-  router.put('/houses/:id', houseController.updateHouse); //Xử lý yêu cầu cập nhật thông tin của một ngôi nhà
-  router.delete('/houses/:id', houseController.deleteHouse); //Xử lý yêu cầu xóa một ngôi nhà cụ thể
-  router.post('/houses/:house_id/comments', houseController.addComment); //Thêm bình luận cho một ngôi nhà cụ thể
+  // Quản lý nhà
+  router.get("/houses", houseController.getAllHouses); // Hiển thị danh sách tất cả nhà
+  router.post("/houses", houseController.createHouse); // Tạo một ngôi nhà mới
 
+  // Hiển thị chi tiết của một ngôi nhà
+  router.get("/houses/:id", houseController.getHouseById);
+
+  // Cập nhật thông tin ngôi nhà
+  router.put("/houses/:id", houseController.updateHouse);
+
+  // Xóa ngôi nhà
+  router.delete("/houses/:id", houseController.deleteHouse);
+
+  // Thêm bình luận vào một ngôi nhà cụ thể
+  router.post("/houses/:house_id/comments", houseController.addComment);
+
+
+  // Sử dụng middleware để xử lý upload ảnh trong route
+  router.post('/houses', upload.single('image'), houseController.createHouse);
   return app.use("/", router);
 };
 
