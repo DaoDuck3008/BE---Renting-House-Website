@@ -4,7 +4,8 @@ const { House, Room, Comment } = db;
 const houseController = {
   createHouse: async (req, res) => {
     try {
-      const { house_name, address, number_of_room, owner_id } = req.body;
+      const { house_name, address, number_of_room, owner_id } = req.body;    
+
       const image = req.file ? `/uploads/${req.file.filename}` : null;
 
       const newHouse = await House.create({
@@ -38,27 +39,27 @@ const houseController = {
     try {
       const { id } = req.params;
       const house = await House.findByPk(id, {
-        include: [
-          {
-            model: Room,
-            as: 'rooms',
-            include: [
-              {
-                model: Comment,
-                as: 'comments',
-              },
-            ],
-          },
-        ],
-      });
+        // include: [
+        //   {
+        //     model: Room,
+        //     as: 'rooms',
+        //     include: [
+        //       {
+        //         model: Comment,
+        //         as: 'comments',
+        //       },
+        //     ],
+        //   },
+        // ],
+      });       
 
       if (!house) {
         return res.status(404).render('404', { message: 'House not found' });
-      }
+      }     
 
       res.render('house', { house });
     } catch (error) {
-      console.error('Error fetching house by ID:', error);
+      // console.error('Error fetching house by ID:', error);
       res.status(500).json({ success: false, message: error.message });
     }
   },
@@ -67,7 +68,18 @@ const houseController = {
   updateHouse: async (req, res) => {
     try {
       const { id } = req.params;
-      const { house_name, address, number_of_room, image } = req.body;
+      const { house_name, address, number_of_room } = req.body;
+
+      const bodyUpdate = {
+        house_name,
+        address,
+        number_of_room, 
+      }
+
+      if (req.file){
+        const image =  `/uploads/${req.file.filename}`;
+        bodyUpdate.image = image;
+      }
 
       const house = await House.findByPk(id);
 
@@ -75,12 +87,7 @@ const houseController = {
         return res.status(404).json({ success: false, message: 'House not found' });
       }
 
-      await house.update({
-        house_name,
-        address,
-        number_of_room,
-        image,
-      });
+      await house.update(bodyUpdate);
 
       return res.redirect('/houses');
     } catch (error) {

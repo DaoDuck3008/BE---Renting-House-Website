@@ -122,7 +122,7 @@
                     <div class="form-group mb-2">
                       <input type="number" name="number_of_room" class="form-control"
                         value="<%= house.number_of_room %>" placeholder="Rooms" required>
-                    </div>
+                    </div> 
                     <div class="form-group mb-2">
                       <input type="file" name="image" class="form-control" accept="image/*">
                     </div>
@@ -145,7 +145,7 @@
 
           <!-- Form thêm nhà mới -->
           <h2 class="mt-5">Add New House</h2>
-          <form action="/houses" method="POST" enctype="multipart/form-data" class="shadow-sm p-4 bg-light rounded">
+          <form action="/houses/new" method="POST" enctype="multipart/form-data" class="shadow-sm p-4 bg-light rounded">
             <div class="mb-3">
               <label for="house_name" class="form-label">House Name:</label>
               <input type="text" id="house_name" name="house_name" class="form-control" required>
