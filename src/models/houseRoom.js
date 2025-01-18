@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       house_id: DataTypes.INTEGER,
       room_id: DataTypes.INTEGER,
+      createdAt: DataTypes.DATE,
     },
     {
       sequelize,

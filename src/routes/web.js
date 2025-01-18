@@ -16,12 +16,14 @@ const initWebRoutes = (app) => {
   // Quản lý nhà
   router.get("/houses", houseController.getAllHouses); // Hiển thị danh sách tất cả nhà
   router.post("/houses", houseController.createHouse); // Tạo một ngôi nhà mới
+  // Sử dụng middleware để xử lý upload ảnh trong route
+  router.post('/houses/new', upload.single('image'), houseController.createHouse);
 
   // Hiển thị chi tiết của một ngôi nhà
   router.get("/houses/:id", houseController.getHouseById);
 
   // Cập nhật thông tin ngôi nhà
-  router.put("/houses/:id", houseController.updateHouse);
+  router.put("/houses/:id", upload.single("image"), houseController.updateHouse);
 
   // Xóa ngôi nhà
   router.delete("/houses/:id", houseController.deleteHouse);
@@ -29,9 +31,6 @@ const initWebRoutes = (app) => {
   // Thêm bình luận vào một ngôi nhà cụ thể
   router.post("/houses/:house_id/comments", houseController.addComment);
 
-
-  // Sử dụng middleware để xử lý upload ảnh trong route
-  router.post('/houses', upload.single('image'), houseController.createHouse);
   return app.use("/", router);
 };
 
