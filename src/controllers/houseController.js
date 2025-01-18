@@ -51,7 +51,8 @@ const houseController = {
         //     ],
         //   },
         // ],
-      });       
+      });     
+      console.log("House details:", house);  
 
       if (!house) {
         return res.status(404).render('404', { message: 'House not found' });

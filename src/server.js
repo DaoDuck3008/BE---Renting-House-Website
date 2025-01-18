@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import initWebRoutes from "./routes/web";
 import connection from "./config/connectDB";
 import path from 'path'; 
+import methodOverride from "method-override";
 require("dotenv").config();
 
 const app = express();
@@ -14,6 +15,9 @@ configViewEngine(app);
 //config body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Middleware để hỗ trợ method PUT và DELETE từ form HTML
+app.use(methodOverride('_method')); 
 
 //check connect DB
 connection();
