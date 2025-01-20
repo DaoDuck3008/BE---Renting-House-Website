@@ -19,11 +19,12 @@ module.exports = (sequelize, DataTypes) => {
       rater_id: DataTypes.INTEGER,
       rating: DataTypes.INTEGER,
       description: DataTypes.STRING,
-      createAt: DataTypes.DATE,
+      createdAt: DataTypes.DATE,
     },
     {
       sequelize,
       modelName: "Comment",
+      timestamps: false
     }
   );
   return Comment;

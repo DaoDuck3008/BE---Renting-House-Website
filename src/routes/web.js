@@ -31,6 +31,8 @@ const initWebRoutes = (app) => {
   // Thêm bình luận vào một ngôi nhà cụ thể
   router.post("/houses/:house_id/comments", houseController.addComment);
 
+  
+
   return app.use("/", router);
 };
 

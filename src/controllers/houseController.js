@@ -83,7 +83,7 @@ const houseController = {
       }
 
       const house = await House.findByPk(id);
-
+      // console.log('Found House:', house);
       if (!house) {
         return res.status(404).json({ success: false, message: 'House not found' });
       }

@@ -75,7 +75,7 @@
       </p>
 
       <!-- Form cập nhật thông tin nhà -->
-      <form action="/houses/<%= house.id %>?_method=PUT" method="POST" enctype="multipart/form-data"
+      <form action="/houses/<%= house.house_id %>?_method=PUT" method="POST" enctype="multipart/form-data"
         class="update-form">
         <h3>Update House Information</h3>
         <label for="house_name">Name:</label>
@@ -94,7 +94,7 @@
       </form>
 
       <!-- Form xóa nhà -->
-      <form action="/houses/<%= house.id %>?_method=DELETE" method="POST" class="delete-form">
+      <form action="/houses/<%= house.house_id %>?_method=DELETE" method="POST" class="delete-form">
         <button type="submit" class="btn btn-danger">Delete This House</button>
       </form>
     </div>
@@ -154,7 +154,7 @@
     <!-- Thêm bình luận mới -->
     <section class="add-comment">
       <h3>Add Comment</h3>
-      <form action="/houses/<%= house.id %>/comments" method="POST">
+      <form action="/houses/<%= house.house_id %>/comments" method="POST">
         <label for="rating">Rating:</label>
         <input type="number" name="rating" id="rating" min="1" max="5" required>
 
