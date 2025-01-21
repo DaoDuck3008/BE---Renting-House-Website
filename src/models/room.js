@@ -11,10 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       // Mỗi room thuộc về một house
       // Trong models/room.js
-      Room.belongsToMany(models.House, { through: models.HouseRoom, foreignKey: 'room_id', as: 'houses' });
+      // Room.belongsToMany(models.House, { through: models.HouseRoom, foreignKey: 'room_id', as: 'houses' });
 
       // Mỗi room có thể có nhiều comments
-      Room.hasMany(models.Comment, { foreignKey: 'room_id', as: 'comments' });
+      // Room.hasMany(models.Comment, { foreignKey: 'room_id', as: 'comments' });
 
     }
   }

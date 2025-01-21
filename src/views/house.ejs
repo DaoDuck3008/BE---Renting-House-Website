@@ -100,8 +100,8 @@
     </div>
 
     <!-- Hiển thị danh sách phòng và bình luận -->
-    <section class="room-comments">
-      <h3>Rooms and Ratings</h3>
+    <!-- <section class="room-comments"> -->
+      <!-- <h3>Rooms and Ratings</h3>
       <% if (house.rooms && house.rooms.length> 0) { %>
         <ul>
           <% house.rooms.forEach(room=> { %>
@@ -148,8 +148,35 @@
         </ul>
         <% } else { %>
           <p>No rooms available for this house.</p>
-          <% } %>
-    </section>
+          <% } %> -->
+      <section class="house-comments">
+        <h3>House Ratings and Comments</h3>
+        <% if (house.comments && house.comments.length> 0) { %>
+          <ul>
+            <% house.comments.forEach(comment=> { %>
+              <li>
+                <p><strong>Rating:</strong>
+                  <%= comment.rating %> ⭐
+                </p>
+                <p>
+                  <%= comment.description %>
+                </p>
+                <p><em>By User ID:</em>
+                  <%= comment.rater_id %>
+                </p>
+                <p><em>On:</em>
+                  <%= new Date(comment.created_date).toLocaleDateString() %>
+                </p>
+              </li>
+              <% }) %>
+          </ul>
+          <% } else { %>
+            <p>No comments yet for this house.</p>
+            <% } %>
+      </section>
+
+
+    <!-- </section> -->
 
     <!-- Thêm bình luận mới -->
     <section class="add-comment">

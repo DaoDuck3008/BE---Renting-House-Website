@@ -43,12 +43,12 @@ const houseController = {
         //   {
         //     model: Room,
         //     as: 'rooms',
-        //     include: [
-        //       {
-        //         model: Comment,
-        //         as: 'comments',
-        //       },
-        //     ],
+            include: [
+              {
+                model: Comment,
+                as: 'comments',
+              },
+            ],
         //   },
         // ],
       });     
@@ -119,6 +119,7 @@ const houseController = {
       const { house_id } = req.params;
       const { rating, description, rater_id } = req.body;
 
+      //tạo 1 bình luận mới
       await Comment.create({
         house_id, // gắn với house_id
         rater_id,
