@@ -1,12 +1,15 @@
-// models/Comment.js
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Comment extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The models/index file will call this method automatically.
+     */
     static associate(models) {
-      // Định nghĩa quan hệ với House thông qua CommentHouse
+      // define association here
       Comment.belongsTo(models.House, {
-        // through: 'CommentHouse',
         foreignKey: 'house_id',
         as: 'house',
       });
@@ -27,12 +30,6 @@ module.exports = (sequelize, DataTypes) => {
       house_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: "House",
-        //   key: "house_id",
-        // },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
       },
     },
     {

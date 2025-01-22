@@ -11,10 +11,6 @@ module.exports = {
       },
       house_id: { // Thêm mối quan hệ trực tiếp tới House
         type: Sequelize.INTEGER,
-        // references: {
-        //   model: "House", 
-        //   key: "house_id",
-        // },
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },

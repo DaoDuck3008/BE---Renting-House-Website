@@ -1,10 +1,11 @@
 const db = require('../models');
 const { House, Room, Comment } = db;
 
+
 const houseController = {
   createHouse: async (req, res) => {
     try {
-      const { house_name, address, number_of_room, owner_id } = req.body;    
+      const { house_name, address, number_of_room, owner_id, area, cost } = req.body;    
 
       const image = req.file ? `/uploads/${req.file.filename}` : null;
 
@@ -13,6 +14,8 @@ const houseController = {
         address,
         number_of_room,
         owner_id,
+        area,
+        cost,
         image,
         created_date: new Date(),
       });

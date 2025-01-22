@@ -1,12 +1,15 @@
-// models/House.js
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class House extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The models/index file will call this method automatically.
+     */
     static associate(models) {
-      // Định nghĩa quan hệ với Comment thông qua CommentHouse
+      // define association here
       House.hasMany(models.Comment, {
-        // through: 'CommentHouse',
         foreignKey: 'house_id',
         as: 'comments',
       });
@@ -22,16 +25,19 @@ module.exports = (sequelize, DataTypes) => {
       },
       house_name: DataTypes.STRING,
       address: DataTypes.STRING,
+      image: DataTypes.STRING,
+      area: DataTypes.INTEGER,
+      cost: DataTypes.INTEGER,
       number_of_room: DataTypes.INTEGER,
       average_rate: DataTypes.FLOAT,
-      image: DataTypes.TEXT,
+      utilities: DataTypes.STRING,
+      description: DataTypes.STRING,
       owner_id: DataTypes.INTEGER,
       createdAt: DataTypes.DATE,
     },
     {
       sequelize,
       modelName: "House",
-      tableName: "House",
     }
   );
   return House;
