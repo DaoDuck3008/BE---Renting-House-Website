@@ -5,10 +5,10 @@ module.exports = (sequelize, DataTypes) => {
   class Comment extends Model {
     static associate(models) {
       // Định nghĩa quan hệ với House thông qua CommentHouse
-      Comment.belongsToMany(models.House, {
-        through: 'CommentHouse',
-        foreignKey: 'comment_id',
-        as: 'houses',
+      Comment.belongsTo(models.House, {
+        // through: 'CommentHouse',
+        foreignKey: 'house_id',
+        as: 'house',
       });
     }
   }
@@ -27,10 +27,10 @@ module.exports = (sequelize, DataTypes) => {
       house_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-          model: "House",
-          key: "house_id",
-        },
+        // references: {
+        //   model: "House",
+        //   key: "house_id",
+        // },
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },

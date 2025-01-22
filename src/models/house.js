@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
   class House extends Model {
     static associate(models) {
       // Định nghĩa quan hệ với Comment thông qua CommentHouse
-      House.belongsToMany(models.Comment, {
-        through: 'CommentHouse',
+      House.hasMany(models.Comment, {
+        // through: 'CommentHouse',
         foreignKey: 'house_id',
         as: 'comments',
       });

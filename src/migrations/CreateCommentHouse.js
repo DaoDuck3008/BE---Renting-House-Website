@@ -5,20 +5,20 @@ module.exports = {
       comment_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        references: {
-          model: 'Comment',  // Tên bảng Comment trong cơ sở dữ liệu
-          key: 'comment_id',
-        },
+        // references: {
+        //   model: 'Comment',  // Tên bảng Comment trong cơ sở dữ liệu
+        //   key: 'comment_id',
+        // },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
       house_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        references: {
-          model: 'House',  // Tên bảng House trong cơ sở dữ liệu
-          key: 'house_id',
-        },
+        // references: {
+        //   model: 'House',  // Tên bảng House trong cơ sở dữ liệu
+        //   key: 'house_id',
+        // },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
