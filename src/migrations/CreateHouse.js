@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("House", {
-      id: {
+      house_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -18,11 +18,27 @@ module.exports = {
       number_of_room: {
         type: Sequelize.INTEGER,
       },
+      image: {
+        type: Sequelize.STRING,
+      },
+      area: {
+        type: Sequelize.INTEGER,
+      },
+      cost: {
+        type: Sequelize.INTEGER,
+      },
       average_rate: {
         type: Sequelize.FLOAT,
       },
-      image: {
-        type: Sequelize.JSON,
+      utilities: {
+        type: Sequelize.STRING,
+      },
+      description: {
+        type: Sequelize.STRING,
+      },
+      owner_id: {  // Thêm trường owner_id
+        type: Sequelize.INTEGER,
+        allowNull: false,  
       },
       createdAt: {
         allowNull: false,

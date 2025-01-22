@@ -9,16 +9,31 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      House.hasMany(models.Comment, {
+        foreignKey: 'house_id',
+        as: 'comments',
+      });
     }
   }
   House.init(
     {
+      house_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
       house_name: DataTypes.STRING,
       address: DataTypes.STRING,
+      image: DataTypes.STRING,
+      area: DataTypes.INTEGER,
+      cost: DataTypes.INTEGER,
       number_of_room: DataTypes.INTEGER,
       average_rate: DataTypes.FLOAT,
-      image: DataTypes.JSON,
-      createAt: DataTypes.DATE,
+      utilities: DataTypes.STRING,
+      description: DataTypes.STRING,
+      owner_id: DataTypes.INTEGER,
+      createdAt: DataTypes.DATE,
     },
     {
       sequelize,

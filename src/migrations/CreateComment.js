@@ -3,11 +3,16 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Comment", {
-      id: {
+      comment_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
+      },
+      house_id: { // Thêm mối quan hệ trực tiếp tới House
+        type: Sequelize.INTEGER,
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       },
       rater_id: {
         allowNull: false,
