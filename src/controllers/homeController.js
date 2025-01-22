@@ -44,6 +44,10 @@ const getRegisterPage = (req, res) => {
   return res.render("Register.ejs");
 };
 
+const getSearchPage = (req, res) => {
+  return res.render("search.ejs");
+};
+
 
 
 
@@ -54,5 +58,5 @@ module.exports = {
   getHousePage,
   getLoginPage,
   getRegisterPage,
-
+  getSearchPage,
 };

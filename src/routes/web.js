@@ -2,6 +2,7 @@ import express from "express";
 import homeController from "../controllers/homeController";
 import houseController from "../controllers/houseController";
 import methodOverride from "method-override";
+import searchController from "../controllers/searchController"
 const upload = require('../middlewares/upload');
 const router = express.Router();
 router.use(methodOverride('_method')); // Hỗ trợ PUT/DELETE từ form HTML
@@ -31,6 +32,9 @@ const initWebRoutes = (app) => {
   // Thêm bình luận vào một ngôi nhà cụ thể
   router.post("/houses/:house_id/comments", houseController.addComment);
 
+  // mở danh sách tất cả nhà trọ
+  router.get("/search/:district_id?", searchController.handleFindAllHouses);
+  // tìm kiếm theo quận/ huyện
   
 
   return app.use("/", router);
