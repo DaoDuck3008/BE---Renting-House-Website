@@ -1,10 +1,10 @@
 const getHomePage = async (req, res) => {
   try {
-    const { House } = require('../models'); // Lấy model House từ DB
+    const { House } = require("../models"); // Lấy model House từ DB
     const houses = await House.findAll(); // Lấy danh sách tất cả các nhà
-    res.render('home', { houses }); // Render trang "home"
+    res.render("home", { houses }); // Render trang "home"
   } catch (error) {
-    console.error('Error fetching houses:', error);
+    console.error("Error fetching houses:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -14,24 +14,24 @@ const getUserPage = (req, res) => {
 
 const getHousePage = async (req, res) => {
   try {
-    const { House, Room, Comment } = require('../models'); // Lấy các model từ DB
+    const { House, Room, Comment } = require("../models"); // Lấy các model từ DB
     const house = await House.findByPk(req.params.id, {
       include: [
         {
           model: Room,
-          as: 'rooms', // Bao gồm danh sách phòng
-          include: [{ model: Comment, as: 'comments' }], // Kèm theo bình luận
+          as: "rooms", // Bao gồm danh sách phòng
+          include: [{ model: Comment, as: "comments" }], // Kèm theo bình luận
         },
       ],
     });
 
     if (!house) {
-      return res.status(404).render('404', { message: 'House not found' });
+      return res.status(404).render("404", { message: "House not found" });
     }
 
-    res.render('house', { house }); // Truyền dữ liệu house vào view
+    res.render("house", { house }); // Truyền dữ liệu house vào view
   } catch (error) {
-    console.error('Error fetching house details:', error);
+    console.error("Error fetching house details:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -47,10 +47,6 @@ const getRegisterPage = (req, res) => {
 const getSearchPage = (req, res) => {
   return res.render("search.ejs");
 };
-
-
-
-
 
 module.exports = {
   getHomePage,

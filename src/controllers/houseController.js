@@ -67,6 +67,7 @@ const houseController = {
       res.status(500).json({ success: false, message: error.message });
     }
   },
+  //MVC
 
   // Cập nhật thông tin bài đăng nhà
   updateHouse: async (req, res) => {
