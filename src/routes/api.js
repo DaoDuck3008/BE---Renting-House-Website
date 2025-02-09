@@ -1,14 +1,18 @@
 import express from "express";
-import homeController from "../controllers/homeController";
-import houseController from "../controllers/houseController";
 import methodOverride from "method-override";
-import apiController from "../controllers/apiController";
+import apiController from "../controllers/APIController/LoginRegisterController";
+import postController from "../controllers/APIController/postController";
 
 const router = express.Router();
 router.use(methodOverride("_method"));
 
 const initApiRoutes = (app) => {
+  //api đăng kí đăng nhập
   router.post("/register", apiController.register);
+  router.post("/login", apiController.login);
+
+  //api gửi đi tất cả post (house)
+  router.get("/posts/read", postController.fetchAllPost);
 
   return app.use("/api/v1/", router);
 };

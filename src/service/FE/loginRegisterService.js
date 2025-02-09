@@ -42,6 +42,10 @@ const hashUserPassword = (userPassword) => {
   return hashPassword;
 };
 
+const checkPasswordCorrect = async (password, hashpass) => {
+  return await bcrypt.compare(password, hashpass);
+};
+
 const createAnUser = async (userData) => {
   const { username, email, phone, gender, password } = userData;
 
@@ -101,6 +105,56 @@ const createAnUser = async (userData) => {
   }
 };
 
+const findAnUser = async (userInput) => {
+  try {
+    // find an user in Host table
+    const user = await db.Host.findOne({
+      attributes: ["host_name", "email", "phone", "password"],
+      where: {
+        [Op.or]: [
+          {
+            email: userInput.emailPhone,
+          },
+          {
+            phone: userInput.emailPhone,
+          },
+        ],
+      },
+    });
+
+    // console.log(">>> check user: ", user);
+
+    if (user) {
+      if (await checkPasswordCorrect(userInput.password, user.password)) {
+        console.log(">>> Login successfully!");
+        return {
+          EM: "Login successfully!", // error message
+          EC: 0, // error code -1 -2
+          DT: { userInput: userInput.emailPhone }, // data
+        };
+      }
+    }
+
+    console.log(
+      `>>>Not found any email or phone: ${userInput.emailPhone} with password: ${userInput.password}`
+    );
+
+    return {
+      EM: "Wrong email / phone number or password!",
+      EC: -1,
+      DT: "",
+    };
+  } catch (e) {
+    console.log(">>> catch error from service: ", e);
+    return {
+      EM: "There are something wrongs in service.",
+      EC: -2,
+      DT: "",
+    };
+  }
+};
+
 module.exports = {
   createAnUser,
+  findAnUser,
 };
