@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": null,
-    "database": "renting_house_db",
+    "database": "renting_house_db1",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "define": {

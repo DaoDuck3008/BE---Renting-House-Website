@@ -1,12 +1,10 @@
 const db = require("../models");
-const { House, Room, Comment } = db;
+const { House, Comment, Utilities } = db;
 
 const houseController = {
   createHouse: async (req, res) => {
     try {
-      const { house_name, address, number_of_room, owner_id, area, cost } =
-        req.body;
-
+      const { house_name, address, number_of_room, owner_id, area, cost, utilities } = req.body;
       const image = req.file ? `/uploads/${req.file.filename}` : null;
 
       const newHouse = await House.create({
@@ -28,14 +26,25 @@ const houseController = {
   },
 
   // Lấy danh sách tất cả bài đăng nhà
+  // getAllHouses: async (req, res) => {
+  //   try {
+  //     const houses = await House.findAll();
+  //     return res.render("home", { houses });
+  //   } catch (error) {
+  //     return res.status(500).json({ success: false, message: error.message });
+  //   }
+  // },
+
   getAllHouses: async (req, res) => {
     try {
-      const houses = await House.findAll();
-      return res.render("home", { houses });
+        const houses = await House.findAll({
+            attributes: ["house_id", "house_name", "address", "number_of_room", "image", "area", "cost", "average_rate", "utilities", "description", "owner_id"]
+        });
+        res.status(200).json(houses);
     } catch (error) {
-      return res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ message: "Lỗi lấy danh sách nhà", error });
     }
-  },
+},
 
   // Lấy thông tin chi tiết một bài đăng nhà theo ID
   getHouseById: async (req, res) => {
@@ -67,53 +76,51 @@ const houseController = {
       res.status(500).json({ success: false, message: error.message });
     }
   },
-  //MVC
 
   // Cập nhật thông tin bài đăng nhà
   updateHouse: async (req, res) => {
     try {
       const { id } = req.params;
-      const { house_name, address, number_of_room } = req.body;
+      const { house_name, address, number_of_room, utilities } = req.body;
 
-      const bodyUpdate = {
-        house_name,
-        address,
-        number_of_room,
-      };
-
+      const bodyUpdate = { house_name, address, number_of_room };
       if (req.file) {
-        const image = `/uploads/${req.file.filename}`;
-        bodyUpdate.image = image;
+        bodyUpdate.image = `/uploads/${req.file.filename}`;
       }
 
       const house = await House.findByPk(id);
-      // console.log('Found House:', house);
       if (!house) {
-        return res
-          .status(404)
-          .json({ success: false, message: "House not found" });
+        return res.status(404).json({ success: false, message: "House not found" });
       }
 
       await house.update(bodyUpdate);
 
+      if (utilities && Array.isArray(utilities)) {
+        await Utilities.destroy({ where: { house_id: id } });
+        const UtilitiesData = utilities.map((util) => ({
+          house_id: id,
+          name: util,
+        }));
+        await Utilities.bulkCreate(UtilitiesData);
+      }
       return res.redirect("/houses");
+
+      // return res.json({ success: true, message: "House updated successfully" });
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
   },
 
-  // Xóa bài đăng nhà
   deleteHouse: async (req, res) => {
     try {
       const { id } = req.params;
       const house = await House.findByPk(id);
 
       if (!house) {
-        return res
-          .status(404)
-          .json({ success: false, message: "House not found" });
+        return res.status(404).json({ success: false, message: "House not found" });
       }
 
+      await Utilities.destroy({ where: { house_id: id } });
       await house.destroy();
       return res.redirect("/houses");
     } catch (error) {
@@ -121,15 +128,13 @@ const houseController = {
     }
   },
 
-  // Thêm bình luận cho bài đăng nhà
   addComment: async (req, res) => {
     try {
       const { house_id } = req.params;
       const { rating, description, rater_id } = req.body;
 
-      //tạo 1 bình luận mới
       await Comment.create({
-        house_id, // gắn với house_id
+        house_id,
         rater_id,
         rating,
         description,

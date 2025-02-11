@@ -15,6 +15,12 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       House.hasMany(models.Image, { foreignKey: "house_id", as: "images" });
+      House.hasOne(models.Utilities, {
+        foreignKey: "house_id",
+        as: "utilities",
+        onDelete: "CASCADE",
+      });
+      
     }
   }
   House.init(
@@ -32,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       cost: DataTypes.INTEGER,
       number_of_room: DataTypes.INTEGER,
       average_rate: DataTypes.FLOAT,
-      utilities: DataTypes.STRING,
+      // utilities: DataTypes.STRING,
       description: DataTypes.STRING,
       owner_id: DataTypes.INTEGER,
       createdAt: DataTypes.DATE,
