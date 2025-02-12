@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       House.hasMany(models.Image, { foreignKey: "house_id", as: "images" });
+      House.hasMany(models.Utilities, {
+        foreignKey: "house_id",
+        as: "Utilities",
+      });
     }
   }
   House.init(

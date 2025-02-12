@@ -13,6 +13,8 @@ const initApiRoutes = (app) => {
 
   //api gửi đi tất cả post (house)
   router.get("/posts/read", postController.fetchAllPost);
+  //api đăng tin bài viết thuê nhà
+  router.post("/posts/upload", postController.uploadAPost);
 
   return app.use("/api/v1/", router);
 };
