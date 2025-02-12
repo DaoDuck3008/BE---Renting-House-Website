@@ -97,11 +97,11 @@ const uploadAPost = async (postData) => {
     // Tạo Utilities
     await db.Utilities.create({
       house_id,
-      numberOfBedroom: utilities.numberBedroom,
-      numberOfFloor: utilities.numberFloor,
-      numberOfBathroom: utilities.numberBathroom,
+      bedrooms: utilities.numberBedroom,
+      floors: utilities.numberFloor,
+      bathrooms: utilities.numberBathroom,
       security: utilities.security,
-      pccc: utilities.pccc,
+      fire_protection: utilities.pccc,
       parking: utilities.parking,
       camera: utilities.camera,
     });

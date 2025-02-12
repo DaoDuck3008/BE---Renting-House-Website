@@ -1,53 +1,73 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Utilities extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The models/index file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // Mỗi nhà có một tiện ích
       Utilities.belongsTo(models.House, {
         foreignKey: "house_id",
         as: "house",
+        onDelete: "CASCADE", //XÓA NHÀ THÌ TIỆN ÍCH XÓA THEO
       });
     }
   }
+
   Utilities.init(
     {
+      utilities_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
       house_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      numberOfBedroom: {
+      bedrooms: {
         type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
       },
-      numberOfFloor: {
+      floors: {
         type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
       },
-      numberOfBathroom: {
+      bathrooms: {
         type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
       },
       security: {
         type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
-      pccc: {
+      fire_protection: {
         type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       parking: {
         type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       camera: {
         type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
     },
     {
       sequelize,
       modelName: "Utilities",
+      tableName: "utilities",
       timestamps: false,
     }
   );
+
   return Utilities;
 };
