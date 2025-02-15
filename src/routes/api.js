@@ -16,6 +16,9 @@ const initApiRoutes = (app) => {
   //api đăng tin bài viết thuê nhà
   router.post("/posts/upload", postController.uploadAPost);
 
+  //api lấy toàn bộ các quận huyện thuộc 1 thành phố
+  router.get("/districts/read", postController.fetchDistricts);
+
   return app.use("/api/v1/", router);
 };
 

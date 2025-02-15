@@ -1,8 +1,116 @@
 import db from "../../models/index";
-import { Op, where } from "sequelize";
+import { Op } from "sequelize";
+import Sequelize from "sequelize";
+const costTrans = (cost) => {
+  switch (cost) {
+    case "Dưới 1 triệu":
+      return { [Op.lte]: 1000000 };
+    case "1 - 3 triệu":
+      return { [Op.and]: [{ [Op.gt]: 1000000 }, { [Op.lte]: 3000000 }] };
+    case "3 - 5 triệu":
+      return { [Op.and]: [{ [Op.gt]: 3000000 }, { [Op.lte]: 5000000 }] };
+    case "5 - 8 triệu":
+      return { [Op.and]: [{ [Op.gt]: 5000000 }, { [Op.lte]: 8000000 }] };
+    case "8 - 10 triệu":
+      return { [Op.and]: [{ [Op.gt]: 8000000 }, { [Op.lte]: 10000000 }] };
+    case "Trên 10 triệu":
+      return { [Op.gte]: 10000000 };
+    case "":
+      return { [Op.gte]: 0 };
+  }
+};
 
-const fetchAllPost = async () => {
+const areaTrans = (area) => {
+  switch (area) {
+    case "Dưới 30m2":
+      return { [Op.lte]: 30 };
+    case "30 - 50m2":
+      return { [Op.and]: [{ [Op.gt]: 30 }, { [Op.lte]: 50 }] };
+    case "50 - 80m2":
+      return { [Op.and]: [{ [Op.gt]: 50 }, { [Op.lte]: 80 }] };
+    case "80 - 100m2":
+      return { [Op.and]: [{ [Op.gt]: 80 }, { [Op.lte]: 100 }] };
+    case "Trên 100m2":
+      return { [Op.gte]: 100 };
+    case "":
+      return { [Op.gt]: 0 };
+  }
+};
+
+const ratingCreateTrans = (rating) => {
+  switch (rating) {
+    case "Thấp đến cao":
+      return ["average_rate", "ASC"];
+    case "":
+      return ["average_rate", "DESC"];
+  }
+};
+
+const inputTrans = (input) => {
+  const _input = input.toLowerCase();
+  // console.log(">>> check _input:", _input);
+  if (!input) {
+    // Nếu district_id là rỗng, trả về điều kiện không làm gì
+    return { [Op.not]: { house_id: 0 } };
+  }
+  return {
+    [Op.or]: [
+      Sequelize.literal(`LOWER(house_name) LIKE '%${_input}%'`),
+      Sequelize.literal(`LOWER(address) LIKE '%${_input}%'`),
+      Sequelize.literal(`LOWER(description) LIKE '%${_input}%'`),
+    ],
+  };
+};
+
+const fetchDistricts = async (city) => {
   try {
+    console.log(">>> check city: ", city);
+    const districts = await db.District.findAll({
+      attributes: ["district_name", "city_name"],
+      where: {
+        city_name: city,
+      },
+    });
+
+    if (!districts?.length) {
+      return {
+        EM: `There is no data districts with this ${city} city.`,
+        EC: 0,
+        DT: "",
+      };
+    }
+
+    const _districts = districts.map((district) =>
+      district.get({ plain: true })
+    );
+    console.log(">>> check districts: ", _districts);
+
+    return {
+      EM: "Call districts success",
+      EC: 0,
+      DT: _districts,
+    };
+  } catch (e) {
+    console.log(">>> catch error in service: ", e);
+    return {
+      EM: "Something went wrong in service.",
+      EC: -2,
+      DT: "",
+    };
+  }
+};
+
+const fetchAllPost = async (query) => {
+  try {
+    const { searchText, city, district, price, area, time, rating } = query;
+    // console.log(">>> check price: ", price);
+    // console.log(">>> check area: ", area);
+    const _cost = price ? price : "";
+    const _area = area ? area : "";
+    const _rating = rating ? rating : "";
+    const _searchText = searchText ? searchText : "";
+    const _district = district ? district : "";
+
     const posts = await db.House.findAll({
       attributes: [
         "house_id",
@@ -24,6 +132,15 @@ const fetchAllPost = async () => {
           as: "Utilities",
         },
       ],
+      where: {
+        [Op.and]: [
+          { cost: costTrans(_cost) },
+          { area: areaTrans(_area) },
+          inputTrans(_searchText),
+          inputTrans(_district),
+        ],
+      },
+      order: [ratingCreateTrans(_rating)],
     });
 
     return {
@@ -132,4 +249,5 @@ const uploadAPost = async (postData) => {
 module.exports = {
   fetchAllPost,
   uploadAPost,
+  fetchDistricts,
 };

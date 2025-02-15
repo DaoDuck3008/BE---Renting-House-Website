@@ -18,36 +18,47 @@ module.exports = {
       [
         {
           district_name: "Ba Đình",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Đống Đa",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Hai Bà Trưng",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Tây Hồ",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Cầu Giấy",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Thanh Xuân",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Hoàng Mai",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Long Biên",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Hà Đông",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Bắc Từ Liêm",
+          city_name: "Hà Nội",
         },
         {
           district_name: "Nam Từ Liêm",
+          city_name: "Hà Nội",
         },
       ],
       {}
