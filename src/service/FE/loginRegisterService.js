@@ -105,11 +105,12 @@ const createAnUser = async (userData) => {
   }
 };
 
+//Login
 const findAnUser = async (userInput) => {
   try {
     // find an user in Host table
     const user = await db.Host.findOne({
-      attributes: ["host_name", "email", "phone", "password"],
+      attributes: ["id", "host_name", "email", "phone", "gender", "password"],
       where: {
         [Op.or]: [
           {
@@ -127,10 +128,12 @@ const findAnUser = async (userInput) => {
     if (user) {
       if (await checkPasswordCorrect(userInput.password, user.password)) {
         console.log(">>> Login successfully!");
+        const _user = user.get({ plain: true });
+
         return {
           EM: "Login successfully!", // error message
           EC: 0, // error code -1 -2
-          DT: { userInput: userInput.emailPhone }, // data
+          DT: _user, // data
         };
       }
     }

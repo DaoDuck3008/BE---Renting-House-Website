@@ -10,6 +10,10 @@ const initApiRoutes = (app) => {
   //api đăng kí đăng nhập
   router.post("/register", apiController.register);
   router.post("/login", apiController.login);
+  //api lấy thông tin người dùng sau khi đăng nhập
+  router.get("/user-info", apiController.getUserInfo);
+  //api xóa cookie chứa thông tin người dùng sau khi đăng xuất
+  router.post("/logout", apiController.logOut);
 
   //api gửi đi tất cả post (house)
   router.get("/posts/read", postController.fetchAllPost);
