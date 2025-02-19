@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Sequelize, DataTypes } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Comment extends Model {
     /**
@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Comment.belongsTo(models.House, {
-        foreignKey: 'house_id',
-        as: 'house',
+        foreignKey: "house_id",
+        as: "house",
       });
     }
   }
@@ -26,7 +26,11 @@ module.exports = (sequelize, DataTypes) => {
       rater_id: DataTypes.INTEGER,
       rating: DataTypes.INTEGER,
       description: DataTypes.STRING,
-      createdAt: DataTypes.DATE,
+      createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: Sequelize.NOW, // 🕒 Set timestamp mặc định
+        allowNull: false,
+      },
       house_id: {
         type: DataTypes.INTEGER,
         allowNull: false,

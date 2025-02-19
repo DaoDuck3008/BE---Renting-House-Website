@@ -1,10 +1,18 @@
 const db = require("../models");
-const { House, Comment, Utilities } = db;
+const { House, Comment, Utilities, Image } = db;
 
 const houseController = {
   createHouse: async (req, res) => {
     try {
-      const { house_name, address, number_of_room, owner_id, area, cost, utilities } = req.body;
+      const {
+        house_name,
+        address,
+        number_of_room,
+        owner_id,
+        area,
+        cost,
+        utilities,
+      } = req.body;
       const image = req.file ? `/uploads/${req.file.filename}` : null;
 
       const newHouse = await House.create({
@@ -37,14 +45,26 @@ const houseController = {
 
   getAllHouses: async (req, res) => {
     try {
-        const houses = await House.findAll({
-            attributes: ["house_id", "house_name", "address", "number_of_room", "image", "area", "cost", "average_rate", "utilities", "description", "owner_id"]
-        });
-        res.status(200).json(houses);
+      const houses = await House.findAll({
+        attributes: [
+          "house_id",
+          "house_name",
+          "address",
+          "number_of_room",
+          "image",
+          "area",
+          "cost",
+          "average_rate",
+          "utilities",
+          "description",
+          "owner_id",
+        ],
+      });
+      res.status(200).json(houses);
     } catch (error) {
-        res.status(500).json({ message: "Lỗi lấy danh sách nhà", error });
+      res.status(500).json({ message: "Lỗi lấy danh sách nhà", error });
     }
-},
+  },
 
   // Lấy thông tin chi tiết một bài đăng nhà theo ID
   getHouseById: async (req, res) => {
@@ -77,6 +97,132 @@ const houseController = {
     }
   },
 
+  //Lấy bài đăng theo house_id
+  getHouseById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const house = await House.findByPk(id, {
+        attributes: [
+          "house_id",
+          "house_name",
+          "address",
+          "number_of_room",
+          "image",
+          "area",
+          "cost",
+          "average_rate",
+          "description",
+          "owner_id",
+        ],
+        include: [
+          {
+            model: Comment,
+            as: "comments",
+          },
+          {
+            model: Image,
+            as: "images",
+            attributes: ["id", "images"],
+          },
+          {
+            model: Utilities,
+            as: "Utilities", // Thêm tiện ích vào kết quả trả về
+            attributes: [
+              "bedrooms",
+              "floors",
+              "bathrooms",
+              "security",
+              "fire_protection",
+              "parking",
+              "camera",
+            ],
+          },
+        ],
+      });
+
+      if (!house) {
+        return res
+          .status(404)
+          .json({ success: false, message: "House not found" });
+      }
+
+      res.json({ success: true, data: house });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  //Lấy bài TẤT CẢ bài đăng theo host_id
+  getHouseByUserId: async (req, res) => {
+    try {
+      console.log(">>> Check req.params: ", req.params);
+      const { userId } = req.params;
+      const houses = await House.findAll({
+        attributes: [
+          "house_id",
+          "house_name",
+          "address",
+          "number_of_room",
+          "image",
+          "area",
+          "cost",
+          "average_rate",
+          "description",
+          "owner_id",
+        ],
+        include: [
+          {
+            model: Comment,
+            as: "comments",
+          },
+          {
+            model: Image,
+            as: "images",
+            attributes: ["id", "images"],
+          },
+          {
+            model: Utilities,
+            as: "Utilities", // Thêm tiện ích vào kết quả trả về
+            attributes: [
+              "bedrooms",
+              "floors",
+              "bathrooms",
+              "security",
+              "fire_protection",
+              "parking",
+              "camera",
+            ],
+          },
+        ],
+        where: {
+          owner_id: userId,
+        },
+      });
+
+      if (!houses) {
+        return res.status(404).json({
+          EM: "There is no data here!",
+          EC: -1,
+          DT: "No Data",
+        });
+      }
+
+      // console.log(`>>> Check house with user_id= ${userId}: `, house);
+
+      res.json({
+        EM: "Get house success",
+        EC: 0,
+        DT: houses,
+      });
+    } catch (error) {
+      res.status(500).json({
+        EM: "Error from server",
+        EC: -2,
+        DT: "",
+      });
+    }
+  },
+
   // Cập nhật thông tin bài đăng nhà
   updateHouse: async (req, res) => {
     try {
@@ -90,7 +236,9 @@ const houseController = {
 
       const house = await House.findByPk(id);
       if (!house) {
-        return res.status(404).json({ success: false, message: "House not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "House not found" });
       }
 
       await house.update(bodyUpdate);
@@ -117,7 +265,9 @@ const houseController = {
       const house = await House.findByPk(id);
 
       if (!house) {
-        return res.status(404).json({ success: false, message: "House not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "House not found" });
       }
 
       await Utilities.destroy({ where: { house_id: id } });
@@ -138,10 +288,39 @@ const houseController = {
         rater_id,
         rating,
         description,
-        created_date: new Date(),
+        created_date: DEFAULT_TIMESTAMP,
       });
 
       return res.redirect(`/houses/${house_id}`);
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  addCommentByUser: async (req, res) => {
+    try {
+      const { id } = req.params; // Lấy house_id từ URL
+      const { rater_id, rating, description } = req.body;
+
+      if (!id || !rater_id || !rating || !description) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Thiếu thông tin comment" });
+      }
+
+      const newComment = await Comment.create({
+        house_id: id,
+        rater_id,
+        rating,
+        description,
+        created_date: new Date(),
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Comment đã được thêm thành công",
+        data: newComment,
+      });
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }

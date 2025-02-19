@@ -133,7 +133,13 @@ const findAnUser = async (userInput) => {
         return {
           EM: "Login successfully!", // error message
           EC: 0, // error code -1 -2
-          DT: _user, // data
+          DT: {
+            id: _user.id,
+            username: _user.host_name,
+            email: _user.email,
+            phone: _user.phone,
+            gender: _user.gender,
+          }, // data
         };
       }
     }
@@ -157,7 +163,35 @@ const findAnUser = async (userInput) => {
   }
 };
 
+const updateAnUser = async (userId, updateInput) => {
+  try {
+    const [updatedRows] = await db.Host.update(
+      {
+        host_name: updateInput.username,
+        email: updateInput.email,
+        phone: updateInput.phone,
+        gender: updateInput.gender,
+      },
+      { where: { id: userId } }
+    );
+
+    if (updatedRows === 0) {
+      return { EM: "Not found user!", EC: -1, DT: "" };
+    }
+
+    return { EM: "Update user success!", EC: 0, DT: "" };
+  } catch (e) {
+    console.log(">>> catch error from service: ", e);
+    return {
+      EM: "There are something wrongs in service.",
+      EC: -2,
+      DT: "",
+    };
+  }
+};
+
 module.exports = {
   createAnUser,
   findAnUser,
+  updateAnUser,
 };

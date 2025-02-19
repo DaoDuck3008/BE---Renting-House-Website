@@ -9,7 +9,8 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      house_id: { // Thêm mối quan hệ trực tiếp tới House
+      house_id: {
+        // Thêm mối quan hệ trực tiếp tới House
         type: Sequelize.INTEGER,
         onUpdate: "CASCADE",
         onDelete: "SET NULL",

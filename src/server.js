@@ -7,10 +7,11 @@ import configCors from "./config/configCors";
 import connection from "./config/connectDB";
 import path from "path";
 import methodOverride from "method-override";
+import cookieParser from "cookie-parser";
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 9091;
+const PORT = process.env.PORT || 2000;
 
 //config CORS
 configCors(app);
@@ -20,6 +21,8 @@ configViewEngine(app);
 //config body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.use(cookieParser());
 
 // Middleware để hỗ trợ method PUT và DELETE từ form HTML
 app.use(methodOverride("_method"));

@@ -1,7 +1,7 @@
 import postService from "../../service/FE/postService";
 
 const fetchDistricts = async (req, res) => {
-  console.log(">>> check data: ", req.query);
+  // console.log(">>> check data: ", req.query);
   try {
     const { city } = req.query;
     let data = await postService.fetchDistricts(city);
@@ -22,7 +22,8 @@ const fetchDistricts = async (req, res) => {
 
 const fetchAllPost = async (req, res) => {
   try {
-    console.log(">>> check query: ", req.query);
+    // console.log(">>> Cookies: ", req.cookies);
+    // console.log(">>> check query: ", req.query);
     let data = await postService.fetchAllPost(req.query);
     return res.status(200).json({
       EM: data.EM,

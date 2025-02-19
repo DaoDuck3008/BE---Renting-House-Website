@@ -1,6 +1,6 @@
 import loginRegisterService from "../../service/FE/loginRegisterService";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
+import { createToken } from "../../middlewares/JWTAction";
 require("dotenv").config();
 
 const SECRET_KEY = process.env.JWT_SECRET;
@@ -33,7 +33,6 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  console.log(">>> check req.body: ", req.body);
   try {
     if (!req.body) {
       return res.status(404).json({
@@ -46,35 +45,26 @@ const login = async (req, res) => {
     let data = await loginRegisterService.findAnUser(req.body);
     // Tạo JWT Token
     const user = data.DT;
-    console.log(">>> check get user in controller: ", user);
-    console.log("check secret key:", SECRET_KEY);
+    // console.log(">>> check get user in controller: ", user);
+    // console.log("check secret key:", SECRET_KEY);
 
     //Tạo JWT Token
-    const token = jwt.sign(
-      {
-        id: user.id,
-        username: user.host_name,
-        phone: user.phone,
-        email: user.email,
-        gender: user.gender,
-      },
-      SECRET_KEY,
-      {
-        expiresIn: "1h",
-      }
-    );
+    const token = createToken(user);
+    // console.log(">>> check token: ", token);
 
     // Lưu vào HTTP-Only Cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: false, // Để false khi chạy localhost, trên HTTPS thì set true
-      maxAge: 60 * 60 * 1000, // Hết hạn sau 1 giờ
+      maxAge: 7 * 24 * 60 * 60 * 1000, // Hết hạn sau 7 ngày
     });
 
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
-      DT: data.DT,
+      DT: {
+        access_token: token,
+      },
     });
   } catch (e) {
     console.log(">>> catch error from apiController: ", e);
@@ -89,25 +79,25 @@ const login = async (req, res) => {
 const getUserInfo = (req, res) => {
   const token = req.cookies.token;
   if (!token) {
-    return res.status(401).json({
-      EM: "You didn't login.",
-      EC: -2,
-      DT: "",
+    return res.json({
+      EM: "You haven't signed in yet!.",
+      EC: -1,
+      DT: { id: "", username: "", email: "", phone: "" },
     });
   }
 
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     return res.status(200).json({
-      EM: "get user data success.",
+      EM: "Get user data success!",
       EC: 0,
       DT: decoded,
     });
   } catch (e) {
     console.log(">>> catch error from controller: ", e);
     return res.status(500).json({
-      EM: "error from server",
-      EC: "-2",
+      EM: "Error from server",
+      EC: -2,
       DT: "",
     });
   }
@@ -115,7 +105,7 @@ const getUserInfo = (req, res) => {
 
 const logOut = (req, res) => {
   try {
-    res.clearCookie("token");
+    res.clearCookie("token", { domain: "localhost", path: "/" });
     return res.status(200).json({
       EM: "Logout success.",
       EC: 0,
@@ -131,9 +121,31 @@ const logOut = (req, res) => {
   }
 };
 
+const updateUserInfo = async (req, res) => {
+  try {
+    // console.log(">>> check req.body: ", req.body);
+    const updateData = req.body.updateData;
+    const userId = req.body.userId;
+    let data = await loginRegisterService.updateAnUser(userId, updateData);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (e) {
+    console.log(">>> catch error from controller: ", e);
+    return res.status(500).json({
+      EM: "error from server",
+      EC: "-2",
+      DT: "",
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   getUserInfo,
+  updateUserInfo,
   logOut,
 };

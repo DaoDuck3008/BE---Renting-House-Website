@@ -64,7 +64,7 @@ const inputTrans = (input) => {
 
 const fetchDistricts = async (city) => {
   try {
-    console.log(">>> check city: ", city);
+    // console.log(">>> check city: ", city);
     const districts = await db.District.findAll({
       attributes: ["district_name", "city_name"],
       where: {
@@ -194,7 +194,7 @@ const uploadAPost = async (postData) => {
     if (!user) {
       return { EM: "Host not found.", EC: -1, DT: "" };
     }
-    console.log(">>> check user: ", user.get({ plain: true }));
+    // console.log(">>> check user: ", user.get({ plain: true }));
 
     const host_id = user.id;
 
