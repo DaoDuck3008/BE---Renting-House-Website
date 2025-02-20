@@ -281,16 +281,16 @@ const houseController = {
       await house.update(bodyUpdate);
   
       if (utilities && typeof utilities === "object") {
-        // Chuyển đổi giá trị từ utilities sang chuỗi hoặc BOOLEAN 
         const updatedUtilities = {
           bedrooms: parseInt(utilities.bedrooms, 10) || 0,
           floors: parseInt(utilities.floors, 10) || 1,
           bathrooms: parseInt(utilities.bathrooms, 10) || 1,
-          security: utilities.security === "true" || utilities.security === true,
-          fire_protection: utilities.fire_protection === "true" || utilities.fire_protection === true,
-          parking: utilities.parking === "true" || utilities.parking === true,
-          camera: utilities.camera === "true" || utilities.camera === true,
+          security: utilities.security,
+          fire_protection: utilities.fire_protection,
+          parking: utilities.parking,
+          camera: utilities.camera,
         };
+        
   
         // Kiểm tra xem đã có record Utilities cho house chưa
         let utilRecord = await Utilities.findOne({ where: { house_id: id } });

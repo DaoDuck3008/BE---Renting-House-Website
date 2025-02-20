@@ -19,7 +19,10 @@ module.exports = (sequelize, DataTypes) => {
       password: DataTypes.STRING,
       phone: DataTypes.STRING,
       gender: DataTypes.STRING,
-      createAt: DataTypes.DATE,
+      createAt: { 
+        type: DataTypes.DATE,
+        field: "createdAt"  // Cột thực tế trong DB 
+      },
     },
     {
       sequelize,

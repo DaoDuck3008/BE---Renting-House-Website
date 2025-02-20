@@ -3,6 +3,7 @@ import methodOverride from "method-override";
 import apiController from "../controllers/APIController/LoginRegisterController";
 import postController from "../controllers/APIController/postController";
 import houseController from "../controllers/houseController";
+import userController from "../controllers/userController";
 
 const router = express.Router();
 router.use(methodOverride("_method"));
@@ -14,7 +15,7 @@ const initApiRoutes = (app) => {
   //api lấy thông tin người dùng sau khi đăng nhập
   router.get("/get/user-info", apiController.getUserInfo);
   //api cập nhật thông tin người dùng
-  router.patch("/update/user-info", apiController.updateUserInfo);
+  router.patch("/update/user-info", userController.updateUserInfo);
   //api xóa cookie chứa thông tin người dùng sau khi đăng xuất
   router.get("/logout", apiController.logOut);
 
@@ -35,6 +36,7 @@ const initApiRoutes = (app) => {
 
   router.patch("/house/:id", houseController.updateHouseAPI);   // cập nhật bài đăng
   router.delete("/house/:id", houseController.deleteHouse);  // xóa bài đăng
+ 
 
   return app.use("/api/v1/", router);
 };

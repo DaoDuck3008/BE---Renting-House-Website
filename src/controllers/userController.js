@@ -1,4 +1,41 @@
 import userService from "../service/userService";
+import db from "../models";
+const { Host } = db; 
+
+const updateUserInfo = async (req, res) => {
+  try {
+    console.log(">>> updateUserInfo req.body:", req.body);
+
+    const { userId, updateData } = req.body;
+
+    // Tìm Host theo userId
+    const host = await Host.findByPk(userId);
+    if (!host) {
+      return res.status(404).json({
+        success: false,
+        message: "Host not found",
+      });
+    }
+
+    await host.update({
+      host_name: updateData.username,
+      email: updateData.email,
+      phone: updateData.phone,
+      gender: updateData.gender,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Host info updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating host info:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 const createUser = async (req, res) => {
   console.log(">>> check req.body: ", req.body);
@@ -54,4 +91,5 @@ const login = async (req, res) => {
 module.exports = {
   createUser,
   login,
+  updateUserInfo 
 };
