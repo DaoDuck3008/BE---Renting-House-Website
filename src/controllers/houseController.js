@@ -251,9 +251,108 @@ const houseController = {
         }));
         await Utilities.bulkCreate(UtilitiesData);
       }
-      return res.redirect("/houses");
+      return res.status(200).json({
+        success: true,
+        message: "House updated successfully",
+      });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  },
 
-      // return res.json({ success: true, message: "House updated successfully" });
+  updateHouseAPI: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { house_name, address, number_of_room, cost, area, description, utilities } = req.body;
+  
+      const bodyUpdate = { house_name, address, number_of_room, cost, area, description };
+  
+      if (req.file) {
+        bodyUpdate.image = `/uploads/${req.file.filename}`;
+      }
+  
+      
+      const house = await House.findByPk(id);
+      if (!house) {
+        return res.status(404).json({ success: false, message: "House not found" });
+      }
+  
+  
+      await house.update(bodyUpdate);
+  
+      if (utilities && typeof utilities === "object") {
+        // Chuyển đổi giá trị từ utilities sang chuỗi hoặc BOOLEAN 
+        const updatedUtilities = {
+          bedrooms: parseInt(utilities.bedrooms, 10) || 0,
+          floors: parseInt(utilities.floors, 10) || 1,
+          bathrooms: parseInt(utilities.bathrooms, 10) || 1,
+          security: utilities.security === "true" || utilities.security === true,
+          fire_protection: utilities.fire_protection === "true" || utilities.fire_protection === true,
+          parking: utilities.parking === "true" || utilities.parking === true,
+          camera: utilities.camera === "true" || utilities.camera === true,
+        };
+  
+        // Kiểm tra xem đã có record Utilities cho house chưa
+        let utilRecord = await Utilities.findOne({ where: { house_id: id } });
+        if (utilRecord) {
+          // Cập nhật record tiện ích hiện có
+          await utilRecord.update(updatedUtilities);
+        } else {
+          // Nếu chưa có, tạo mới record tiện ích
+          await Utilities.create({
+            house_id: id,
+            ...updatedUtilities,
+          });
+        }
+      }
+  
+      return res.status(200).json({
+        success: true,
+        message: "House updated successfully",
+      });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  },
+  
+  
+
+  deleteHouse: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const house = await House.findByPk(id);
+
+      if (!house) {
+        return res
+          .status(404)
+          .json({ success: false, message: "House not found" });
+      }
+
+      await Utilities.destroy({ where: { house_id: id } });
+      await house.destroy();
+      return res.status(200).json({
+        success: true,
+        message: "House deleted successfully",
+      });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  addComment: async (req, res) => {
+    try {
+      const { house_id } = req.params;
+      const { rating, description, rater_id } = req.body;
+
+      await Comment.create({
+        house_id,
+        rater_id,
+        rating,
+        description,
+        created_date: DEFAULT_TIMESTAMP,
+      });
+
+      return res.redirect(`/houses/${house_id}`);
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
@@ -272,13 +371,16 @@ const houseController = {
 
       await Utilities.destroy({ where: { house_id: id } });
       await house.destroy();
-      return res.redirect("/houses");
+      return res.status(200).json({
+        success: true,
+        message: "House deleted successfully",
+      });
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
   },
 
-  addComment: async (req, res) => {
+  deleteHouseAPI : async (req, res) => {
     try {
       const { house_id } = req.params;
       const { rating, description, rater_id } = req.body;

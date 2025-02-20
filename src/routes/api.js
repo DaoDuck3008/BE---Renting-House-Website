@@ -33,6 +33,9 @@ const initApiRoutes = (app) => {
   //api xem danh sách nhà trọ theo id
   router.get("/house/byUserId/:userId", houseController.getHouseByUserId);
 
+  router.patch("/house/:id", houseController.updateHouseAPI);   // cập nhật bài đăng
+  router.delete("/house/:id", houseController.deleteHouse);  // xóa bài đăng
+
   return app.use("/api/v1/", router);
 };
 
