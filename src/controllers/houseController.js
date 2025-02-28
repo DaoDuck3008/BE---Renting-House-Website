@@ -148,78 +148,8 @@ const houseController = {
 
       res.json({ success: true, data: house });
     } catch (error) {
+      console.log(">>> catch error: ", error);
       res.status(500).json({ success: false, message: error.message });
-    }
-  },
-
-  //Lấy bài TẤT CẢ bài đăng theo host_id
-  getHouseByUserId: async (req, res) => {
-    try {
-      console.log(">>> Check req.params: ", req.params);
-      const { userId } = req.params;
-      const houses = await House.findAll({
-        attributes: [
-          "house_id",
-          "house_name",
-          "address",
-          "number_of_room",
-          "image",
-          "area",
-          "cost",
-          "average_rate",
-          "description",
-          "owner_id",
-        ],
-        include: [
-          {
-            model: Comment,
-            as: "comments",
-          },
-          {
-            model: Image,
-            as: "images",
-            attributes: ["id", "images"],
-          },
-          {
-            model: Utilities,
-            as: "Utilities", // Thêm tiện ích vào kết quả trả về
-            attributes: [
-              "bedrooms",
-              "floors",
-              "bathrooms",
-              "security",
-              "fire_protection",
-              "parking",
-              "camera",
-            ],
-          },
-        ],
-        where: {
-          owner_id: userId,
-        },
-      });
-
-      if (!houses) {
-        return res.status(404).json({
-          EM: "There is no data here!",
-          EC: -1,
-          DT: "No Data",
-        });
-      }
-
-      // console.log(`>>> Check house with user_id= ${userId}: `, house);
-
-      res.json({
-        EM: "Get house success",
-        EC: 0,
-        DT: houses,
-      });
-    } catch (error) {
-      res.status(500).json({
-        EM: "Error from server",
-        EC: -2,
-        DT: "",
-      });
     }
   },
 
@@ -262,60 +192,72 @@ const houseController = {
 
   updateHouseAPI: async (req, res) => {
     try {
-      const { id } = req.params;
-      const { house_name, address, number_of_room, cost, area, description, utilities } = req.body;
-  
-      const bodyUpdate = { house_name, address, number_of_room, cost, area, description };
-  
-      if (req.file) {
-        bodyUpdate.image = `/uploads/${req.file.filename}`;
-      }
-  
-      
-      const house = await House.findByPk(id);
+      const {
+        house_id,
+        house_name,
+        address,
+        cost,
+        area,
+        description,
+        Utilities,
+      } = req.body;
+
+      const bodyUpdate = {
+        house_name,
+        address,
+        cost,
+        area,
+        description,
+      };
+
+      const house = await House.findByPk(house_id);
       if (!house) {
-        return res.status(404).json({ success: false, message: "House not found" });
+        return res
+          .status(404)
+          .json({ EM: "Not found any house like that.", EC: -1, DT: "" });
       }
-  
-  
+
       await house.update(bodyUpdate);
-  
-      if (utilities && typeof utilities === "object") {
+
+      if (Utilities && typeof Utilities === "object") {
         const updatedUtilities = {
-          bedrooms: parseInt(utilities.bedrooms, 10) || 0,
-          floors: parseInt(utilities.floors, 10) || 1,
-          bathrooms: parseInt(utilities.bathrooms, 10) || 1,
-          security: utilities.security,
-          fire_protection: utilities.fire_protection,
-          parking: utilities.parking,
-          camera: utilities.camera,
+          bedrooms: parseInt(Utilities.bedrooms, 10) || 0,
+          floors: parseInt(Utilities.floors, 10) || 1,
+          bathrooms: parseInt(Utilities.bathrooms, 10) || 1,
+          security: Utilities.security,
+          fire_protection: Utilities.fire_protection,
+          parking: Utilities.parking,
+          camera: Utilities.camera,
         };
-        
-  
+
         // Kiểm tra xem đã có record Utilities cho house chưa
-        let utilRecord = await Utilities.findOne({ where: { house_id: id } });
+        let utilRecord = await db.Utilities.findOne({
+          where: { house_id: house_id },
+        });
         if (utilRecord) {
           // Cập nhật record tiện ích hiện có
           await utilRecord.update(updatedUtilities);
         } else {
           // Nếu chưa có, tạo mới record tiện ích
           await Utilities.create({
-            house_id: id,
+            house_id: house_id,
             ...updatedUtilities,
           });
         }
       }
-  
+
       return res.status(200).json({
-        success: true,
-        message: "House updated successfully",
+        EM: "House updated successfully",
+        EC: 0,
+        DT: "",
       });
     } catch (error) {
-      return res.status(500).json({ success: false, message: error.message });
+      console.log(">>> check error: ", error);
+      return res
+        .status(500)
+        .json({ EM: "Something wrong from server", EC: 0, DT: "" });
     }
   },
-  
-  
 
   deleteHouse: async (req, res) => {
     try {
@@ -342,11 +284,13 @@ const houseController = {
   addComment: async (req, res) => {
     try {
       const { house_id } = req.params;
-      const { rating, description, rater_id } = req.body;
+      const { rating, rater_name, description, rater_id } = req.body;
+      console.log(">>> check rater_name: ", rater_name);
 
       await Comment.create({
         house_id,
         rater_id,
+        rater_name: rater_name,
         rating,
         description,
         created_date: DEFAULT_TIMESTAMP,
@@ -354,6 +298,7 @@ const houseController = {
 
       return res.redirect(`/houses/${house_id}`);
     } catch (error) {
+      console.log(">>> catch error: ", error);
       return res.status(500).json({ success: false, message: error.message });
     }
   },
@@ -380,7 +325,7 @@ const houseController = {
     }
   },
 
-  deleteHouseAPI : async (req, res) => {
+  deleteHouseAPI: async (req, res) => {
     try {
       const { house_id } = req.params;
       const { rating, description, rater_id } = req.body;
@@ -402,7 +347,7 @@ const houseController = {
   addCommentByUser: async (req, res) => {
     try {
       const { id } = req.params; // Lấy house_id từ URL
-      const { rater_id, rating, description } = req.body;
+      const { rater_id, rater_name, rating, description } = req.body;
 
       if (!id || !rater_id || !rating || !description) {
         return res
@@ -414,9 +359,31 @@ const houseController = {
         house_id: id,
         rater_id,
         rating,
+        rater_name,
         description,
         created_date: new Date(),
       });
+
+      //update averate_rate
+
+      const AllCommentWithHouseId = await Comment.findAll({
+        where: { house_id: newComment.house_id },
+      });
+
+      let sumRate = 0;
+      AllCommentWithHouseId.forEach((comment) => {
+        sumRate += comment.rating;
+        console.log(">>> check comment rating: ", comment.rating);
+      });
+
+      await House.update(
+        { average_rate: sumRate / AllCommentWithHouseId.length },
+        {
+          where: {
+            house_id: newComment.house_id,
+          },
+        }
+      );
 
       return res.status(201).json({
         success: true,
@@ -424,7 +391,73 @@ const houseController = {
         data: newComment,
       });
     } catch (error) {
+      console.log(">>> check error: ", error);
       return res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  deleteCommentByUser: async (req, res) => {
+    const { commentId } = req.params;
+    console.log(">>> get commentId from params: ", commentId);
+    console.log(">>> get userId: ", req.userId);
+
+    try {
+      // TÌm bình luận để xóa
+      const comment = await Comment.findOne({
+        where: { comment_id: commentId },
+      });
+
+      // Nếu không tìm thấy bình luận
+      if (!comment) {
+        return res.status(404).json({
+          EM: "Not found comment",
+          EC: -1,
+          DT: "",
+        });
+      }
+
+      // Kiểm tra quyền xóa (phải là người tạo bình luận)
+      if (comment.rater_id !== req.userId) {
+        return res.status(403).json({
+          EM: "You have no permission to delete this comment.",
+          EC: -1,
+          DT: "",
+        });
+      }
+
+      const houseId = comment.house_id;
+
+      await comment.destroy();
+
+      const AllCommentWithHouseId = await Comment.findAll({
+        where: { house_id: houseId },
+      });
+
+      let sumRate = 0;
+      AllCommentWithHouseId.forEach((comment) => {
+        sumRate += comment.rating;
+        console.log(">>> check comment rating: ", comment.rating);
+      });
+
+      await House.update(
+        { average_rate: sumRate / AllCommentWithHouseId.length },
+        {
+          where: {
+            house_id: houseId,
+          },
+        }
+      );
+
+      return res.status(200).json({
+        EM: "Delete comment successfully!",
+        EC: 0,
+        DT: "",
+      });
+    } catch (error) {
+      console.log(">>> Catch error from houseController: ", error);
+      return res
+        .status(500)
+        .json({ EM: "something wrong in server.", EC: -2, DT: "" });
     }
   },
 };

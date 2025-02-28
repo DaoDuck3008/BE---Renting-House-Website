@@ -19,6 +19,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
+      rater_name: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       rating: {
         allowNull: false,
         type: Sequelize.INTEGER,

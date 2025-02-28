@@ -22,19 +22,69 @@ const fetchDistricts = async (req, res) => {
 
 const fetchAllPost = async (req, res) => {
   try {
-    // console.log(">>> Cookies: ", req.cookies);
-    // console.log(">>> check query: ", req.query);
-    let data = await postService.fetchAllPost(req.query);
-    return res.status(200).json({
-      EM: data.EM,
-      EC: data.EC,
-      DT: data.DT,
-    });
+    console.log(">>> check query: ", req.query);
+    if (req.query.page && req.query.limit) {
+      const page = req.query.page;
+      const limit = req.query.limit;
+      console.log(">>> check page: ", page);
+      console.log(">>> check limit: ", limit);
+
+      let data = await postService.fetchAllPostWithPagination(
+        req.query,
+        +page,
+        +limit
+      );
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    } else {
+      console.log(">>> run this!!!");
+      let data = await postService.fetchAllPost(req.query);
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
   } catch (e) {
     console.log(">>> catch error from postController: ", e);
     return res.status(500).json({
       EM: "error from server",
       EC: "-2",
+      DT: "",
+    });
+  }
+};
+
+const fetchPostByUserId = async (req, res) => {
+  try {
+    console.log(">>>check query: ", req.query);
+    if (req.query.page && req.query.limit) {
+      let data = await postService.fetchPostByUserId(
+        req.query.userid,
+        +req.query.page,
+        +req.query.limit
+      );
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    } else {
+      console.log("Missing page and limit query");
+      return res.status.status(404).json({
+        EM: "Missing page and limit query",
+        EC: -2,
+        DT: "",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      EM: "Error from server",
+      EC: -2,
       DT: "",
     });
   }
@@ -60,4 +110,9 @@ const uploadAPost = async (req, res) => {
   }
 };
 
-module.exports = { fetchAllPost, uploadAPost, fetchDistricts };
+module.exports = {
+  fetchAllPost,
+  fetchPostByUserId,
+  uploadAPost,
+  fetchDistricts,
+};

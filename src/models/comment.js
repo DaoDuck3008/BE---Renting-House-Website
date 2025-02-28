@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
       },
       rater_id: DataTypes.INTEGER,
+      rater_name: { type: DataTypes.STRING, allowNull: false },
       rating: DataTypes.INTEGER,
       description: DataTypes.STRING,
       createdAt: {

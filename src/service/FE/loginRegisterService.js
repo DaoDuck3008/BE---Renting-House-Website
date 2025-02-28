@@ -165,6 +165,7 @@ const findAnUser = async (userInput) => {
 
 const updateAnUser = async (userId, updateInput) => {
   try {
+    // Cập nhật thông tin người dùng
     const [updatedRows] = await db.Host.update(
       {
         host_name: updateInput.username,
@@ -175,11 +176,28 @@ const updateAnUser = async (userId, updateInput) => {
       { where: { id: userId } }
     );
 
+    // Nếu không tìm thấy người dùng
     if (updatedRows === 0) {
       return { EM: "Not found user!", EC: -1, DT: "" };
     }
 
-    return { EM: "Update user success!", EC: 0, DT: "" };
+    // Lấy lại thông tin người dùng sau khi cập nhật
+    const updatedUser = await db.Host.findOne({
+      where: { id: userId },
+      attributes: ["id", "host_name", "email", "phone", "gender"],
+    });
+
+    return {
+      EM: "Update user success!",
+      EC: 0,
+      DT: {
+        id: updatedUser.id,
+        username: updatedUser.host_name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        gender: updatedUser.gender,
+      },
+    };
   } catch (e) {
     console.log(">>> catch error from service: ", e);
     return {

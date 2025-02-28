@@ -1,42 +1,42 @@
 import express from "express";
 import methodOverride from "method-override";
-import apiController from "../controllers/APIController/LoginRegisterController";
+import LoginRegisterController from "../controllers/APIController/LoginRegisterController";
 import postController from "../controllers/APIController/postController";
 import houseController from "../controllers/houseController";
-import userController from "../controllers/userController";
+import JWTAction from "../middlewares/JWTAction";
 
 const router = express.Router();
 router.use(methodOverride("_method"));
 
 const initApiRoutes = (app) => {
-  //api đăng kí đăng nhập
-  router.post("/register", apiController.register);
-  router.post("/login", apiController.login);
-  //api lấy thông tin người dùng sau khi đăng nhập
-  router.get("/get/user-info", apiController.getUserInfo);
-  //api cập nhật thông tin người dùng
-  router.patch("/update/user-info", userController.updateUserInfo);
-  //api xóa cookie chứa thông tin người dùng sau khi đăng xuất
-  router.get("/logout", apiController.logOut);
+  // USER
+  router.post("/register", LoginRegisterController.register); //api đăng kí người dùng
+  router.post("/login", LoginRegisterController.login); //api đăng nhập
+  router.get("/logout", LoginRegisterController.logOut); //api xóa cookie chứa thông tin người dùng sau khi đăng xuất
+  router.get("/get/user-info", LoginRegisterController.getUserInfo); //api lấy thông tin người dùng sau khi đăng nhập
+  router.patch("/update/user-info", LoginRegisterController.updateUserInfo); //api cập nhật thông tin người dùng
 
-  //api gửi đi tất cả post (house)
-  router.get("/posts/read", postController.fetchAllPost);
-  //api đăng tin bài viết thuê nhà
-  router.post("/posts/upload", postController.uploadAPost);
+  //
+  // DISTRICTS
+  router.get("/districts/read", postController.fetchDistricts); //api lấy toàn bộ các quận huyện thuộc 1 thành phố
 
-  //api lấy toàn bộ các quận huyện thuộc 1 thành phố
-  router.get("/districts/read", postController.fetchDistricts);
+  //
+  // HOUSE
+  router.get("/posts/read", postController.fetchAllPost); //api gửi đi tất cả post (house)
+  router.post("/posts/upload", postController.uploadAPost); //api đăng tin bài viết thuê nhà
+  router.post("/posts/update", houseController.updateHouseAPI); // cập nhật bài đăng
+  router.delete("/posts/delete/:id", houseController.deleteHouse); // xóa bài đăng
+  router.get("/house/:id", houseController.getHouseById); // api xem danh sách nhà trọ
+  router.get("/posts/read/byUserId", postController.fetchPostByUserId); //api xem danh sách nhà trọ theo id
 
-  // api thêm comment vào bài đăng
-  router.post("/comment/house/:id", houseController.addCommentByUser);
-  // api xem danh sách nhà trọ
-  router.get("/house/:id", houseController.getHouseById);
-  //api xem danh sách nhà trọ theo id
-  router.get("/house/byUserId/:userId", houseController.getHouseByUserId);
-
-  router.patch("/house/:id", houseController.updateHouseAPI);   // cập nhật bài đăng
-  router.delete("/house/:id", houseController.deleteHouse);  // xóa bài đăng
- 
+  //
+  // COMMENT
+  router.post("/comment/house/:id", houseController.addCommentByUser); // api thêm comment vào bài đăng
+  router.delete(
+    "/comment/house/:commentId",
+    JWTAction.authenticateUser,
+    houseController.deleteCommentByUser
+  );
 
   return app.use("/api/v1/", router);
 };

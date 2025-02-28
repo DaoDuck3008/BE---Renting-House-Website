@@ -123,10 +123,25 @@ const logOut = (req, res) => {
 
 const updateUserInfo = async (req, res) => {
   try {
-    // console.log(">>> check req.body: ", req.body);
     const updateData = req.body.updateData;
     const userId = req.body.userId;
     let data = await loginRegisterService.updateAnUser(userId, updateData);
+
+    if (data.EC === 0) {
+      // Xóa cookie cũ
+      res.clearCookie("token", { domain: "localhost", path: "/" });
+
+      const token = createToken(data.DT);
+      // console.log(">>> check token: ", token);
+
+      // Lưu vào HTTP-Only Cookie
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false, // Để false khi chạy localhost, trên HTTPS thì set true
+        maxAge: 7 * 24 * 60 * 60 * 1000, // Hết hạn sau 7 ngày
+      });
+    }
+
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,

@@ -15,8 +15,8 @@ const costTrans = (cost) => {
       return { [Op.and]: [{ [Op.gt]: 8000000 }, { [Op.lte]: 10000000 }] };
     case "Trên 10 triệu":
       return { [Op.gte]: 10000000 };
-    case "":
-      return { [Op.gte]: 0 };
+    default:
+      return undefined; // Bỏ qua điều kiện nếu không có giá trị
   }
 };
 
@@ -32,8 +32,8 @@ const areaTrans = (area) => {
       return { [Op.and]: [{ [Op.gt]: 80 }, { [Op.lte]: 100 }] };
     case "Trên 100m2":
       return { [Op.gte]: 100 };
-    case "":
-      return { [Op.gt]: 0 };
+    default:
+      return undefined; // Bỏ qua điều kiện nếu không có giá trị
   }
 };
 
@@ -47,17 +47,15 @@ const ratingCreateTrans = (rating) => {
 };
 
 const inputTrans = (input) => {
-  const _input = input.toLowerCase();
-  // console.log(">>> check _input:", _input);
   if (!input) {
-    // Nếu district_id là rỗng, trả về điều kiện không làm gì
-    return { [Op.not]: { house_id: 0 } };
+    return undefined; // Bỏ qua điều kiện nếu không có giá trị
   }
+  const _input = `%${input.toLowerCase()}%`;
   return {
     [Op.or]: [
-      Sequelize.literal(`LOWER(house_name) LIKE '%${_input}%'`),
-      Sequelize.literal(`LOWER(address) LIKE '%${_input}%'`),
-      Sequelize.literal(`LOWER(description) LIKE '%${_input}%'`),
+      { house_name: { [Op.iLike]: _input } },
+      { address: { [Op.iLike]: _input } },
+      { description: { [Op.iLike]: _input } },
     ],
   };
 };
@@ -134,10 +132,10 @@ const fetchAllPost = async (query) => {
       ],
       where: {
         [Op.and]: [
-          { cost: costTrans(_cost) },
-          { area: areaTrans(_area) },
-          inputTrans(_searchText),
-          inputTrans(_district),
+          ...(costTrans(_cost) ? [{ cost: costTrans(_cost) }] : []),
+          ...(areaTrans(_area) ? [{ area: areaTrans(_area) }] : []),
+          ...(inputTrans(_searchText) ? [inputTrans(_searchText)] : []),
+          ...(inputTrans(_district) ? [inputTrans(_district)] : []),
         ],
       },
       order: [ratingCreateTrans(_rating)],
@@ -147,6 +145,157 @@ const fetchAllPost = async (query) => {
       EM: "get all posts success!",
       EC: 0,
       DT: posts,
+    };
+  } catch (e) {
+    console.log(">>> catch error in service: ", e);
+    return {
+      EM: "Something went wrong in service.",
+      EC: -2,
+      DT: "",
+    };
+  }
+};
+
+const fetchAllPostWithPagination = async (query, page, limit) => {
+  try {
+    let offset = (page - 1) * limit;
+
+    const { searchText, city, district, price, area, time, rating } = query;
+    // console.log(">>> check price: ", price);
+    // console.log(">>> check area: ", area);
+    const _cost = price ? price : "";
+    const _area = area ? area : "";
+    const _rating = rating ? rating : "";
+    const _searchText = searchText ? searchText : "";
+    const _district = district ? district : "";
+
+    const { count, rows } = await db.House.findAndCountAll({
+      attributes: [
+        "house_id",
+        "house_name",
+        "address",
+        "area",
+        "cost",
+        "average_rate",
+        "description",
+        "image",
+      ],
+      include: [
+        {
+          model: db.Image,
+          as: "images",
+        },
+        {
+          model: db.Utilities,
+          as: "Utilities",
+        },
+      ],
+      where: {
+        [Op.and]: [
+          ...(costTrans(_cost) ? [{ cost: costTrans(_cost) }] : []),
+          ...(areaTrans(_area) ? [{ area: areaTrans(_area) }] : []),
+          ...(inputTrans(_searchText) ? [inputTrans(_searchText)] : []),
+          ...(inputTrans(_district) ? [inputTrans(_district)] : []),
+        ],
+      },
+      distinct: true,
+      order: [ratingCreateTrans(_rating)],
+      offset: offset,
+      limit: limit,
+    });
+
+    let data = {
+      totalRows: count,
+      totalPages: Math.ceil(count / limit),
+      posts: rows,
+    };
+
+    console.log(">>> check data: ", data);
+
+    return {
+      EM: "get all posts success!",
+      EC: 0,
+      DT: data,
+    };
+  } catch (e) {
+    console.log(">>> catch error in service: ", e);
+    return {
+      EM: "Something went wrong in service.",
+      EC: -2,
+      DT: "",
+    };
+  }
+};
+
+const fetchPostByUserId = async (userId, page, limit) => {
+  try {
+    let offset = (page - 1) * limit;
+
+    const { count, rows } = await db.House.findAndCountAll({
+      attributes: [
+        "house_id",
+        "house_name",
+        "address",
+        "number_of_room",
+        "image",
+        "area",
+        "cost",
+        "average_rate",
+        "description",
+        "owner_id",
+      ],
+      include: [
+        {
+          model: db.Comment,
+          as: "comments",
+        },
+        {
+          model: db.Image,
+          as: "images",
+          attributes: ["id", "images"],
+        },
+        {
+          model: db.Utilities,
+          as: "Utilities", // Thêm tiện ích vào kết quả trả về
+          attributes: [
+            "bedrooms",
+            "floors",
+            "bathrooms",
+            "security",
+            "fire_protection",
+            "parking",
+            "camera",
+          ],
+        },
+      ],
+      where: {
+        owner_id: userId,
+      },
+      distinct: true,
+      offset: offset,
+      limit: limit,
+    });
+
+    if (!rows || !count) {
+      return {
+        EM: "There is no data here!",
+        EC: -1,
+        DT: "",
+      };
+    }
+
+    let data = {
+      totalRows: count,
+      totalPages: Math.ceil(count / limit),
+      posts: rows,
+    };
+
+    console.log(">>> check data: ", data);
+
+    return {
+      EM: "Get house success",
+      EC: 0,
+      DT: data,
     };
   } catch (e) {
     console.log(">>> catch error in service: ", e);
@@ -248,6 +397,8 @@ const uploadAPost = async (postData) => {
 
 module.exports = {
   fetchAllPost,
+  fetchPostByUserId,
   uploadAPost,
   fetchDistricts,
+  fetchAllPostWithPagination,
 };
