@@ -110,9 +110,29 @@ const uploadAPost = async (req, res) => {
   }
 };
 
+const fetchAllPostWithoutPagination = async (req, res) => {
+  try {
+    let data = await postService.fetchAllPostWithoutPagination();
+
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch {
+    console.log(">>> catch error from postController: ", e);
+    return res.status(500).json({
+      EM: "error from server",
+      EC: "-2",
+      DT: "",
+    });
+  }
+};
+
 module.exports = {
   fetchAllPost,
   fetchPostByUserId,
   uploadAPost,
   fetchDistricts,
+  fetchAllPostWithoutPagination,
 };

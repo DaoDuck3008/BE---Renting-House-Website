@@ -53,9 +53,9 @@ const inputTrans = (input) => {
   const _input = `%${input.toLowerCase()}%`;
   return {
     [Op.or]: [
-      { house_name: { [Op.iLike]: _input } },
-      { address: { [Op.iLike]: _input } },
-      { description: { [Op.iLike]: _input } },
+      { house_name: { [Op.like]: _input } },
+      { address: { [Op.like]: _input } },
+      { description: { [Op.like]: _input } },
     ],
   };
 };
@@ -100,13 +100,13 @@ const fetchDistricts = async (city) => {
 
 const fetchAllPost = async (query) => {
   try {
-    const { searchText, city, district, price, area, time, rating } = query;
+    const { searchtext, city, district, price, area, time, rating } = query;
     // console.log(">>> check price: ", price);
     // console.log(">>> check area: ", area);
     const _cost = price ? price : "";
     const _area = area ? area : "";
     const _rating = rating ? rating : "";
-    const _searchText = searchText ? searchText : "";
+    const _searchText = searchtext ? searchtext : "";
     const _district = district ? district : "";
 
     const posts = await db.House.findAll({
@@ -395,10 +395,40 @@ const uploadAPost = async (postData) => {
   }
 };
 
+const fetchAllPostWithoutPagination = async () => {
+  try {
+    const posts = await db.House.findAll({
+      attributes: ["house_id", "house_name", "address"],
+    });
+
+    if (!posts?.length) {
+      return {
+        EM: "Not found any post",
+        EC: -1,
+        DT: "",
+      };
+    }
+
+    return {
+      EM: "Get all posts success.",
+      EC: 0,
+      DT: posts,
+    };
+  } catch (e) {
+    console.log(">>>Check error in postService: ", e);
+    return {
+      EM: "Something went wrong in service.",
+      EC: -2,
+      DT: "",
+    };
+  }
+};
+
 module.exports = {
   fetchAllPost,
   fetchPostByUserId,
   uploadAPost,
   fetchDistricts,
   fetchAllPostWithPagination,
+  fetchAllPostWithoutPagination,
 };

@@ -23,6 +23,7 @@ const initApiRoutes = (app) => {
   //
   // HOUSE
   router.get("/posts/read", postController.fetchAllPost); //api gửi đi tất cả post (house)
+  router.get("/posts/read-all", postController.fetchAllPostWithoutPagination);
   router.post("/posts/upload", postController.uploadAPost); //api đăng tin bài viết thuê nhà
   router.post("/posts/update", houseController.updateHouseAPI); // cập nhật bài đăng
   router.delete("/posts/delete/:id", houseController.deleteHouse); // xóa bài đăng
