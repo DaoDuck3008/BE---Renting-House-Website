@@ -112,7 +112,7 @@ const uploadAPost = async (req, res) => {
 
 const fetchAllPostWithoutPagination = async (req, res) => {
   try {
-    let data = await postService.fetchAllPostWithoutPagination();
+    let data = await postService.fetchAllPostWithoutPagination(req.query);
 
     return res.status(200).json({
       EM: data.EM,

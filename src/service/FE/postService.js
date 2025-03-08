@@ -1,6 +1,6 @@
 import db from "../../models/index";
 import { Op } from "sequelize";
-import Sequelize from "sequelize";
+
 const costTrans = (cost) => {
   switch (cost) {
     case "Dưới 1 triệu":
@@ -40,9 +40,11 @@ const areaTrans = (area) => {
 const ratingCreateTrans = (rating) => {
   switch (rating) {
     case "Thấp đến cao":
-      return ["average_rate", "ASC"];
-    case "":
-      return ["average_rate", "DESC"];
+      return [["average_rate", "ASC"]];
+    case "Cao đến thấp":
+      return [["average_rate", "DESC"]];
+    default:
+      return [];
   }
 };
 
@@ -58,6 +60,13 @@ const inputTrans = (input) => {
       { description: { [Op.like]: _input } },
     ],
   };
+};
+
+const houseIdsTrans = (houseIds) => {
+  if (!houseIds || houseIds.length === 0) {
+    return undefined;
+  }
+  return { [Op.in]: houseIds };
 };
 
 const fetchDistricts = async (city) => {
@@ -138,7 +147,7 @@ const fetchAllPost = async (query) => {
           ...(inputTrans(_district) ? [inputTrans(_district)] : []),
         ],
       },
-      order: [ratingCreateTrans(_rating)],
+      order: ratingCreateTrans(_rating),
     });
 
     return {
@@ -161,13 +170,16 @@ const fetchAllPostWithPagination = async (query, page, limit) => {
     let offset = (page - 1) * limit;
 
     const { searchText, city, district, price, area, time, rating } = query;
-    // console.log(">>> check price: ", price);
-    // console.log(">>> check area: ", area);
+
+    //Lấy các houseId đã được lọc theo bán kính từ Map
+    const { houseids } = query;
+
     const _cost = price ? price : "";
     const _area = area ? area : "";
     const _rating = rating ? rating : "";
     const _searchText = searchText ? searchText : "";
     const _district = district ? district : "";
+    const _houseIds = houseids ? houseids.split(",").map(Number) : "";
 
     const { count, rows } = await db.House.findAndCountAll({
       attributes: [
@@ -196,10 +208,13 @@ const fetchAllPostWithPagination = async (query, page, limit) => {
           ...(areaTrans(_area) ? [{ area: areaTrans(_area) }] : []),
           ...(inputTrans(_searchText) ? [inputTrans(_searchText)] : []),
           ...(inputTrans(_district) ? [inputTrans(_district)] : []),
+          ...(houseIdsTrans(_houseIds)
+            ? [{ house_id: houseIdsTrans(_houseIds) }]
+            : []),
         ],
       },
       distinct: true,
-      order: [ratingCreateTrans(_rating)],
+      order: ratingCreateTrans(_rating),
       offset: offset,
       limit: limit,
     });
@@ -395,10 +410,39 @@ const uploadAPost = async (postData) => {
   }
 };
 
-const fetchAllPostWithoutPagination = async () => {
+const fetchAllPostWithoutPagination = async (query) => {
   try {
+    const { searchText, city, district, price, area, time, rating } = query;
+    // console.log(">>> check price: ", price);
+    // console.log(">>> check area: ", area);
+    const _cost = price ? price : "";
+    const _area = area ? area : "";
+    const _rating = rating ? rating : "";
+    const _searchText = searchText ? searchText : "";
+    const _district = district ? district : "";
+
     const posts = await db.House.findAll({
-      attributes: ["house_id", "house_name", "address"],
+      attributes: ["house_id", "house_name", "address", "image"],
+      include: [
+        {
+          model: db.Image,
+          as: "images",
+        },
+        {
+          model: db.Utilities,
+          as: "Utilities",
+        },
+      ],
+      where: {
+        [Op.and]: [
+          ...(costTrans(_cost) ? [{ cost: costTrans(_cost) }] : []),
+          ...(areaTrans(_area) ? [{ area: areaTrans(_area) }] : []),
+          ...(inputTrans(_searchText) ? [inputTrans(_searchText)] : []),
+          ...(inputTrans(_district) ? [inputTrans(_district)] : []),
+        ],
+      },
+      distinct: true,
+      order: ratingCreateTrans(_rating),
     });
 
     if (!posts?.length) {
