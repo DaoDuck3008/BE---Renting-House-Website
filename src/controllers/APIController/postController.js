@@ -129,10 +129,71 @@ const fetchAllPostWithoutPagination = async (req, res) => {
   }
 };
 
+const updatePost = async (req, res) => {
+  try {
+    const data = await postService.updatePost(req.body);
+
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(">>> check error in postController: ", error);
+    return res.status(500).json({
+      EM: "Something wrong from server",
+      EC: -2,
+      DT: "",
+    });
+  }
+};
+
+const deletePost = async (req, res) => {
+  try {
+    const data = await postService.deletePost(req.params);
+
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(">>> check error in postController: ", error);
+    return res.status(500).json({
+      EM: "Something wrong from server",
+      EC: -2,
+      DT: "",
+    });
+  }
+};
+
+const fetchAPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await postService.fetchAPost(id);
+
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(">>> check error in postController: ", error);
+    return res.status(500).json({
+      EM: "Something wrong from server",
+      EC: -2,
+      DT: "",
+    });
+  }
+};
+
 module.exports = {
   fetchAllPost,
   fetchPostByUserId,
   uploadAPost,
   fetchDistricts,
   fetchAllPostWithoutPagination,
+  updatePost,
+  deletePost,
+  fetchAPost,
 };

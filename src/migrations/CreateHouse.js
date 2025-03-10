@@ -34,11 +34,12 @@ module.exports = {
         type: Sequelize.STRING,
       },
       description: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
-      owner_id: {  // Thêm trường owner_id
+      owner_id: {
+        // Thêm trường owner_id
         type: Sequelize.INTEGER,
-        allowNull: false,  
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

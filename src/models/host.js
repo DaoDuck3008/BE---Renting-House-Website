@@ -9,7 +9,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Host.belongsToMany(models.House, { through: models.HostHouse, foreignKey: 'host_id' });
     }
   }
   Host.init(
@@ -19,15 +18,14 @@ module.exports = (sequelize, DataTypes) => {
       password: DataTypes.STRING,
       phone: DataTypes.STRING,
       gender: DataTypes.STRING,
-      createAt: { 
+      createAt: {
         type: DataTypes.DATE,
-        field: "createdAt"  // Cột thực tế trong DB 
+        field: "createdAt", // Cột thực tế trong DB
       },
     },
     {
       sequelize,
       modelName: "Host",
-      
     }
   );
   return Host;

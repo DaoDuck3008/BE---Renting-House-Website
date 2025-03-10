@@ -468,10 +468,178 @@ const fetchAllPostWithoutPagination = async (query) => {
   }
 };
 
+const updatePost = async (query) => {
+  try {
+    const {
+      house_id,
+      house_name,
+      address,
+      cost,
+      area,
+      description,
+      Utilities,
+    } = query;
+
+    const bodyUpdate = {
+      house_name,
+      address,
+      cost,
+      area,
+      description,
+    };
+
+    const house = await db.House.findByPk(house_id);
+    if (!house) {
+      return { EM: "Not found any house like that.", EC: -1, DT: "" };
+    }
+
+    await house.update(bodyUpdate);
+
+    if (Utilities && typeof Utilities === "object") {
+      const updatedUtilities = {
+        bedrooms: parseInt(Utilities.bedrooms, 10) || 0,
+        floors: parseInt(Utilities.floors, 10) || 1,
+        bathrooms: parseInt(Utilities.bathrooms, 10) || 1,
+        security: Utilities.security,
+        fire_protection: Utilities.fire_protection,
+        parking: Utilities.parking,
+        camera: Utilities.camera,
+      };
+
+      // Kiểm tra xem đã có record Utilities cho house chưa
+      let utilRecord = await db.Utilities.findOne({
+        where: { house_id: house_id },
+      });
+      if (utilRecord) {
+        // Cập nhật record tiện ích hiện có
+        await utilRecord.update(updatedUtilities);
+      } else {
+        // Nếu chưa có, tạo mới record tiện ích
+        await Utilities.create({
+          house_id: house_id,
+          ...updatedUtilities,
+        });
+      }
+    }
+
+    return {
+      EM: "House updated successfully",
+      EC: 0,
+      DT: "",
+    };
+  } catch (e) {
+    console.log(">>>Check error in postService: ", e);
+    return {
+      EM: "Something went wrong in service.",
+      EC: -2,
+      DT: "",
+    };
+  }
+};
+
+const deletePost = async (params) => {
+  try {
+    const { id } = params;
+    const house = await db.House.findByPk(id);
+
+    if (!house) {
+      return res.status(404).json({
+        EM: "House not found",
+        EC: -2,
+        DT: "",
+      });
+    }
+
+    await db.Utilities.destroy({ where: { house_id: id } });
+    await db.Image.destroy({ where: { house_id: id } });
+    await db.Comment.destroy({ where: { house_id: id } });
+    await house.destroy();
+    return {
+      EM: "House deleted successfully",
+      EC: 0,
+      DT: "",
+    };
+  } catch (e) {
+    console.log(">>>Check error in postService: ", e);
+    return {
+      EM: "Something went wrong in service.",
+      EC: -2,
+      DT: "",
+    };
+  }
+};
+
+const fetchAPost = async (house_id) => {
+  try {
+    const house = await db.House.findByPk(house_id, {
+      attributes: [
+        "house_id",
+        "house_name",
+        "address",
+        "number_of_room",
+        "image",
+        "area",
+        "cost",
+        "average_rate",
+        "description",
+        "owner_id",
+      ],
+      include: [
+        {
+          model: db.Comment,
+          as: "comments",
+        },
+        {
+          model: db.Image,
+          as: "images",
+          attributes: ["id", "images"],
+        },
+        {
+          model: db.Utilities,
+          as: "Utilities", // Thêm tiện ích vào kết quả trả về
+          attributes: [
+            "bedrooms",
+            "floors",
+            "bathrooms",
+            "security",
+            "fire_protection",
+            "parking",
+            "camera",
+          ],
+        },
+      ],
+    });
+
+    if (!house) {
+      return {
+        EM: "Not found house match with this house_id",
+        EC: -1,
+        DT: "",
+      };
+    }
+
+    return {
+      EM: "fetch a post success.",
+      EC: 0,
+      DT: house,
+    };
+  } catch (error) {
+    console.log(">>>Check error in postService: ", error);
+    return {
+      EM: "Something went wrong in service.",
+      EC: -2,
+      DT: "",
+    };
+  }
+};
+
 module.exports = {
   fetchAllPost,
   fetchPostByUserId,
   uploadAPost,
+  updatePost,
+  deletePost,
+  fetchAPost,
   fetchDistricts,
   fetchAllPostWithPagination,
   fetchAllPostWithoutPagination,

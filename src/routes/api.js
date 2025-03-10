@@ -25,9 +25,9 @@ const initApiRoutes = (app) => {
   router.get("/posts/read", postController.fetchAllPost); //api gửi đi tất cả post (house)
   router.get("/posts/read-all", postController.fetchAllPostWithoutPagination);
   router.post("/posts/upload", postController.uploadAPost); //api đăng tin bài viết thuê nhà
-  router.post("/posts/update", houseController.updateHouseAPI); // cập nhật bài đăng
-  router.delete("/posts/delete/:id", houseController.deleteHouse); // xóa bài đăng
-  router.get("/house/:id", houseController.getHouseById); // api xem danh sách nhà trọ
+  router.post("/posts/update", postController.updatePost); // cập nhật bài đăng
+  router.delete("/posts/delete/:id", postController.deletePost); // xóa bài đăng
+  router.get("/house/:id", postController.fetchAPost); // api xem danh sách nhà trọ
   router.get("/posts/read/byUserId", postController.fetchPostByUserId); //api xem danh sách nhà trọ theo id
 
   //

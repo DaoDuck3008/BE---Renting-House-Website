@@ -1,3 +1,10 @@
-PORT =
-REACT_URL = 
+PORT=
+
+DB_NAME=
+DB_USER=root
+DB_PASSWORD=
+DB_HOST=localhost
+
+REACT_URL=
+
 JWT_SECRET=

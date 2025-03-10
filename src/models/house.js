@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       number_of_room: DataTypes.INTEGER,
       average_rate: DataTypes.FLOAT,
       utilities: DataTypes.STRING,
-      description: DataTypes.STRING,
+      description: DataTypes.TEXT,
       owner_id: DataTypes.INTEGER,
       createdAt: DataTypes.DATE,
     },

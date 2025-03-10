@@ -305,28 +305,6 @@ const houseController = {
 
   deleteHouse: async (req, res) => {
     try {
-      const { id } = req.params;
-      const house = await House.findByPk(id);
-
-      if (!house) {
-        return res
-          .status(404)
-          .json({ success: false, message: "House not found" });
-      }
-
-      await Utilities.destroy({ where: { house_id: id } });
-      await house.destroy();
-      return res.status(200).json({
-        success: true,
-        message: "House deleted successfully",
-      });
-    } catch (error) {
-      return res.status(500).json({ success: false, message: error.message });
-    }
-  },
-
-  deleteHouseAPI: async (req, res) => {
-    try {
       const { house_id } = req.params;
       const { rating, description, rater_id } = req.body;
 
