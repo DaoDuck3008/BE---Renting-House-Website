@@ -48,6 +48,14 @@ const ratingCreateTrans = (rating) => {
   }
 };
 
+const timeTrans = (time) => {
+  if (time === "Cũ nhất") {
+    return [["house_id", "ASC"]];
+  } else {
+    return [["house_id", "DESC"]];
+  }
+};
+
 const inputTrans = (input) => {
   if (!input) {
     return undefined; // Bỏ qua điều kiện nếu không có giá trị
@@ -115,6 +123,7 @@ const fetchAllPost = async (query) => {
     const _cost = price ? price : "";
     const _area = area ? area : "";
     const _rating = rating ? rating : "";
+    const _time = time ? time : "";
     const _searchText = searchtext ? searchtext : "";
     const _district = district ? district : "";
 
@@ -147,7 +156,7 @@ const fetchAllPost = async (query) => {
           ...(inputTrans(_district) ? [inputTrans(_district)] : []),
         ],
       },
-      order: ratingCreateTrans(_rating),
+      order: [...ratingCreateTrans(_rating), ...timeTrans(_time)],
     });
 
     return {
@@ -177,6 +186,7 @@ const fetchAllPostWithPagination = async (query, page, limit) => {
     const _cost = price ? price : "";
     const _area = area ? area : "";
     const _rating = rating ? rating : "";
+    const _time = time ? time : "";
     const _searchText = searchText ? searchText : "";
     const _district = district ? district : "";
     const _houseIds = houseids ? houseids.split(",").map(Number) : "";
@@ -214,7 +224,7 @@ const fetchAllPostWithPagination = async (query, page, limit) => {
         ],
       },
       distinct: true,
-      order: ratingCreateTrans(_rating),
+      order: [...ratingCreateTrans(_rating), ...timeTrans(_time)],
       offset: offset,
       limit: limit,
     });
@@ -606,6 +616,11 @@ const fetchAPost = async (house_id) => {
             "parking",
             "camera",
           ],
+        },
+        {
+          model: db.Host,
+          as: "Host",
+          attributes: ["host_name", "phone"],
         },
       ],
     });

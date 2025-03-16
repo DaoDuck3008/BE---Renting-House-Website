@@ -34,7 +34,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       description: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING(2147483647),
       },
       owner_id: {
         // Thêm trường owner_id

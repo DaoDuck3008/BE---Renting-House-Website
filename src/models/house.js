@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "Utilities",
         onDelete: "CASCADE",
       });
+      House.belongsTo(models.Host, {
+        foreignKey: "owner_id", // Cột trong bảng House
+        as: "Host", // Alias để truy vấn
+      });
     }
   }
   House.init(
@@ -38,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       number_of_room: DataTypes.INTEGER,
       average_rate: DataTypes.FLOAT,
       utilities: DataTypes.STRING,
-      description: DataTypes.TEXT,
+      description: DataTypes.STRING(2147483647),
       owner_id: DataTypes.INTEGER,
       createdAt: DataTypes.DATE,
     },

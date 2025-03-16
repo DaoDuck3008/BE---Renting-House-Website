@@ -9,6 +9,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+
+      Host.hasMany(models.House, {
+        foreignKey: "owner_id", // Cột trong bảng House
+        as: "houses", // Alias để truy vấn
+        onDelete: "CASCADE", // Xóa Host thì House cũng bị xóa
+      });
     }
   }
   Host.init(
