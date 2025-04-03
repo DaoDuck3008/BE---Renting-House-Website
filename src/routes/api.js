@@ -4,6 +4,7 @@ import LoginRegisterController from "../controllers/APIController/LoginRegisterC
 import postController from "../controllers/APIController/postController";
 import houseController from "../controllers/houseController";
 import JWTAction from "../middlewares/JWTAction";
+import db from "../models";
 
 const router = express.Router();
 router.use(methodOverride("_method"));
@@ -32,12 +33,25 @@ const initApiRoutes = (app) => {
 
   //
   // COMMENT
-  router.post("/comment/house/:id", houseController.addCommentByUser); // api thêm comment vào bài đăng
+  router.post(
+    "/comment/house/:id",
+    JWTAction.authenticateUser,
+    houseController.addCommentByUser
+  ); // api thêm comment vào bài đăng
   router.delete(
     "/comment/house/:commentId",
     JWTAction.authenticateUser,
     houseController.deleteCommentByUser
   );
+
+  router.get("/houses", async (req, res) => {
+    try {
+      const houses = await db.House.findAll();
+      res.status(200).json(houses);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 
   return app.use("/api/v1/", router);
 };

@@ -30,9 +30,6 @@ app.use(methodOverride("_method"));
 //check connect DB
 connection();
 
-// Cấu hình express để sử dụng thư mục uploads làm static folder
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-// app.use(methodOverride('_method'));
 //initWebRoutes
 initWebRoutes(app);
 //initAPIRoutes

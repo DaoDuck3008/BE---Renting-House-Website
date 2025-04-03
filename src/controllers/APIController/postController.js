@@ -22,12 +22,9 @@ const fetchDistricts = async (req, res) => {
 
 const fetchAllPost = async (req, res) => {
   try {
-    console.log(">>> check query: ", req.query);
     if (req.query.page && req.query.limit) {
       const page = req.query.page;
       const limit = req.query.limit;
-      console.log(">>> check page: ", page);
-      console.log(">>> check limit: ", limit);
 
       let data = await postService.fetchAllPostWithPagination(
         req.query,
@@ -40,7 +37,6 @@ const fetchAllPost = async (req, res) => {
         DT: data.DT,
       });
     } else {
-      console.log(">>> run this!!!");
       let data = await postService.fetchAllPost(req.query);
       return res.status(200).json({
         EM: data.EM,

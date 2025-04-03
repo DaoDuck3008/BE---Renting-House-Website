@@ -6,7 +6,6 @@ require("dotenv").config();
 const SECRET_KEY = process.env.JWT_SECRET;
 
 const register = async (req, res) => {
-  console.log(">>> check req.body: ", req.body);
   try {
     if (!req.body) {
       return res.status(404).json({
@@ -43,14 +42,11 @@ const login = async (req, res) => {
     }
 
     let data = await loginRegisterService.findAnUser(req.body);
-    // Tạo JWT Token
+
     const user = data.DT;
-    // console.log(">>> check get user in controller: ", user);
-    // console.log("check secret key:", SECRET_KEY);
 
     //Tạo JWT Token
     const token = createToken(user);
-    // console.log(">>> check token: ", token);
 
     // Lưu vào HTTP-Only Cookie
     res.cookie("token", token, {

@@ -4,6 +4,15 @@ import bcrypt from "bcryptjs";
 
 const salt = bcrypt.genSaltSync(10);
 
+const hashUserPassword = (userPassword) => {
+  const hashPassword = bcrypt.hashSync(userPassword, salt);
+  return hashPassword;
+};
+
+const checkPasswordCorrect = async (password, hashpass) => {
+  return await bcrypt.compare(password, hashpass);
+};
+
 const checkUSernameExist = async (username) => {
   const user = await db.Host.findOne({
     attributes: ["host_name"],
@@ -35,15 +44,6 @@ const checkPhoneExist = async (userPhone) => {
     return true;
   }
   return false;
-};
-
-const hashUserPassword = (userPassword) => {
-  const hashPassword = bcrypt.hashSync(userPassword, salt);
-  return hashPassword;
-};
-
-const checkPasswordCorrect = async (password, hashpass) => {
-  return await bcrypt.compare(password, hashpass);
 };
 
 const createAnUser = async (userData) => {

@@ -5,16 +5,14 @@ const costTrans = (cost) => {
   switch (cost) {
     case "Dưới 1 triệu":
       return { [Op.lte]: 1000000 };
-    case "1 - 3 triệu":
-      return { [Op.and]: [{ [Op.gt]: 1000000 }, { [Op.lte]: 3000000 }] };
+    case "1 - 2 triệu":
+      return { [Op.and]: [{ [Op.gt]: 1000000 }, { [Op.lte]: 2000000 }] };
+    case "2 - 3 triệu":
+      return { [Op.and]: [{ [Op.gt]: 2000000 }, { [Op.lte]: 3000000 }] };
     case "3 - 5 triệu":
       return { [Op.and]: [{ [Op.gt]: 3000000 }, { [Op.lte]: 5000000 }] };
-    case "5 - 8 triệu":
-      return { [Op.and]: [{ [Op.gt]: 5000000 }, { [Op.lte]: 8000000 }] };
-    case "8 - 10 triệu":
-      return { [Op.and]: [{ [Op.gt]: 8000000 }, { [Op.lte]: 10000000 }] };
-    case "Trên 10 triệu":
-      return { [Op.gte]: 10000000 };
+    case "Trên 5 triệu":
+      return { [Op.gte]: 5000000 };
     default:
       return undefined; // Bỏ qua điều kiện nếu không có giá trị
   }
@@ -22,16 +20,14 @@ const costTrans = (cost) => {
 
 const areaTrans = (area) => {
   switch (area) {
-    case "Dưới 30m2":
-      return { [Op.lte]: 30 };
-    case "30 - 50m2":
-      return { [Op.and]: [{ [Op.gt]: 30 }, { [Op.lte]: 50 }] };
-    case "50 - 80m2":
-      return { [Op.and]: [{ [Op.gt]: 50 }, { [Op.lte]: 80 }] };
-    case "80 - 100m2":
-      return { [Op.and]: [{ [Op.gt]: 80 }, { [Op.lte]: 100 }] };
-    case "Trên 100m2":
-      return { [Op.gte]: 100 };
+    case "Dưới 20m2":
+      return { [Op.lte]: 20 };
+    case "20 - 30m2":
+      return { [Op.and]: [{ [Op.gt]: 20 }, { [Op.lte]: 30 }] };
+    case "30 - 40m2":
+      return { [Op.and]: [{ [Op.gt]: 30 }, { [Op.lte]: 40 }] };
+    case "Trên 40m2":
+      return { [Op.gte]: 40 };
     default:
       return undefined; // Bỏ qua điều kiện nếu không có giá trị
   }
@@ -235,8 +231,6 @@ const fetchAllPostWithPagination = async (query, page, limit) => {
       posts: rows,
     };
 
-    console.log(">>> check data: ", data);
-
     return {
       EM: "get all posts success!",
       EC: 0,
@@ -336,13 +330,10 @@ const uploadAPost = async (postData) => {
   try {
     const {
       address,
-      kind,
       cost,
       area,
       utilities,
       host_name,
-      phone,
-      email,
       house_name,
       description,
       images,
@@ -368,7 +359,6 @@ const uploadAPost = async (postData) => {
     if (!user) {
       return { EM: "Host not found.", EC: -1, DT: "" };
     }
-    // console.log(">>> check user: ", user.get({ plain: true }));
 
     const host_id = user.id;
 
@@ -423,13 +413,16 @@ const uploadAPost = async (postData) => {
 const fetchAllPostWithoutPagination = async (query) => {
   try {
     const { searchText, city, district, price, area, time, rating } = query;
-    // console.log(">>> check price: ", price);
-    // console.log(">>> check area: ", area);
+
+    const { houseids } = query;
+
     const _cost = price ? price : "";
     const _area = area ? area : "";
     const _rating = rating ? rating : "";
+    const _time = time ? time : "";
     const _searchText = searchText ? searchText : "";
     const _district = district ? district : "";
+    const _houseIds = houseids ? houseids.split(",").map(Number) : "";
 
     const posts = await db.House.findAll({
       attributes: ["house_id", "house_name", "address", "image"],
@@ -452,14 +445,16 @@ const fetchAllPostWithoutPagination = async (query) => {
         ],
       },
       distinct: true,
-      order: ratingCreateTrans(_rating),
+      order: [...ratingCreateTrans(_rating), ...timeTrans(_time)],
     });
+
+    console.log(">>> post: ", posts);
 
     if (!posts?.length) {
       return {
         EM: "Not found any post",
-        EC: -1,
-        DT: "",
+        EC: 0,
+        DT: [],
       };
     }
 
